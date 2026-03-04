@@ -1,0 +1,8 @@
+<configuration>
+
+    <root level="WARN"/>
+
+    <logger name="io.micronaut" level="WARN"/>
+    <logger name="net.bytebuddy" level="ERROR"/>
+
+</configuration>

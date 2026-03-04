@@ -1,0 +1,10 @@
+telegram:
+  token: 8621055689:AAF2eZ-tOvXfjSWxXa3ZJQDRHqbZQWIJEVY
+
+micronaut:
+  server:
+    enabled: true
+
+#micronaut:
+#  server:
+#    port: 8080

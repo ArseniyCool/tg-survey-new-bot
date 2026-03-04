@@ -1,0 +1,7 @@
+micronaut:
+  server:
+    enabled: false
+
+#micronaut:
+#  server:
+#    port: 8080
