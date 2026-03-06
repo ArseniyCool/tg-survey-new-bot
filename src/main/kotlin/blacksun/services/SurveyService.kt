@@ -1,7 +1,6 @@
 package blacksun.services
 
 import jakarta.inject.Singleton
-import jakarta.inject.Inject
 import org.telegram.telegrambots.meta.api.objects.Update //основной контейнер события
 import org.telegram.telegrambots.meta.api.objects.Message //формирование ответа
 
@@ -11,7 +10,7 @@ enum class Answers(val text: String) {
     DONTUNDERSTAND("Я не понимаю эту команду"),
     NUMBERSAVED("Телефон сохранен! Введите название команды!"),
     INCORRECTNUMBER("Введен неправильный номер. Повторите попытку."),
-    PROJECTSAVED("Название проекта сохранео. Спасибо!")
+    PROJECTSAVED("Название проекта сохранено. Спасибо!")
 }
 
 enum class UserStates {
@@ -31,10 +30,10 @@ enum class UserStates {
 
 class SurveyService {
     val userStates = mutableMapOf<Long, UserStates>()
+    private val phoneRegex = Regex("^(\\+7|8)\\d{10}$") // +7XXXXXXXXXX или 8XXXXXXXXXX
 
     private fun isValidPhoneNumber(phoneNumber: String): Boolean {
-//    if (phoneNumber.isEmpty()) return false
-        return true //TODO("Provide the return value")
+        return phoneRegex.matches(phoneNumber)
     }
     fun handle(update: Update): Message {
 
@@ -43,7 +42,7 @@ class SurveyService {
 
         val response = Message() //объект ответа
 
-        // ===== 1. Глобальные команды (высший приоритет)
+        // 1. Глобальные команды
         when (text) {
 
             "/start" -> {
@@ -57,7 +56,7 @@ class SurveyService {
                 return response
             }
         }
-        // ===== 2. Если пользователь в состоянии
+        // 2. Команды в состоянии приема данных
         val state = userStates[chatId]
 
         if (state != null) {
@@ -82,7 +81,7 @@ class SurveyService {
 
             return response
         }
-        // ===== 3. Fallback
+        // 3. Fallback
         response.text = Answers.DONTUNDERSTAND.text
         return response
     }

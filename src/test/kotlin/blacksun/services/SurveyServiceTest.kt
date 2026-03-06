@@ -39,12 +39,20 @@ class SurveyServiceTest {
         assertEquals(Answers.WELCOME.text, startResponse.text)
     }
     @Test
-    fun `phone command should return number saved`() {
+    fun `correct phone number should return number saved`() {
         service.handle(mockUpdate("/start"))
 
         val phoneResponse = service.handle(mockUpdate("82143965701"))
         assertEquals(Answers.NUMBERSAVED.text, phoneResponse.text)
     }
+    @Test
+    fun `incorrect phone number should return number saved`() {
+        service.handle(mockUpdate("/start"))
+
+        val phoneResponse = service.handle(mockUpdate("-72143965701"))
+        assertEquals(Answers.INCORRECTNUMBER.text, phoneResponse.text)
+    }
+
     @Test
     fun `project command should return project saved`() {
         service.handle(mockUpdate("/start"))
@@ -67,7 +75,15 @@ class SurveyServiceTest {
     }
 
     @Test
-    fun `nofind command should return not found`() {
+    fun `ping command should return pong even state active`() {
+        service.handle(mockUpdate("/start"))
+
+        val response = service.handle(mockUpdate("/ping"))
+        assertEquals(Answers.PONG.text, response.text)
+    }
+
+    @Test
+    fun `not find command should return not found`() {
         val response = service.handle(mockUpdate("something"))
         assertEquals(Answers.DONTUNDERSTAND.text, response.text)
     }
