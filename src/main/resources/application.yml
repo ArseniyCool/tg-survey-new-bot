@@ -8,3 +8,18 @@ micronaut:
 #micronaut:
 #  server:
 #    port: 8080
+
+datasources:
+  default:
+    url: jdbc:postgresql://localhost:1111/telegram_bot
+    driverClassName: org.postgresql.Driver
+    username: postgres
+    password: your_password
+    dialect: POSTGRES
+
+jpa:
+  default:
+    properties:
+      hibernate:
+        hbm2ddl:
+          auto: update

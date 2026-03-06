@@ -6,6 +6,16 @@ plugins {
 group = "org.example"
 version = "1.0-SNAPSHOT"
 
+//БАЗА ДАННЫХ
+dependencies {
+    implementation("io.micronaut.data:micronaut-data-jdbc:4.6.0")
+    implementation("io.micronaut.sql:micronaut-jdbc-hikari:5.3.0")
+
+    runtimeOnly("org.postgresql:postgresql:42.7.3")
+
+    kapt("io.micronaut.data:micronaut-data-processor:4.6.0")
+}
+
 repositories {
     mavenCentral() //отсюда скачиваюстя библиотеки
 }
