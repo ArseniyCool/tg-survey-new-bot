@@ -16,10 +16,21 @@ import org.telegram.telegrambots.meta.api.objects.Message //формирован
 ➡ Telegram формирует объект Update и отправляет его твоему серверу.
 */
 class SurveyService {
-
     fun handle(update: Update): Message {
-        val message = Message().apply { text = "Hello!" }
 
-        return message
+        val chatId = update.message.chatId //id пользователя
+        val text = update.message.text.lowercase() //сообщение пользователя
+
+        val response = Message() //объект ответа
+
+        when (text) {
+            "/start" -> response.text = "Добро пожаловать!"
+
+            "/ping" -> response.text = "Pong!"
+
+            else -> response.text = "Я не понимаю эту команду"
+        }
+
+        return response
     }
 }
