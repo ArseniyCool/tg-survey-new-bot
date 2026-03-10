@@ -1,6 +1,3 @@
-# CODEX: DB settings are only loaded when MICRONAUT_ENVIRONMENTS includes "db".
-# Example (IDE env vars): MICRONAUT_ENVIRONMENTS=db; DB_URL=...; DB_USERNAME=...; DB_PASSWORD=...
-
 datasources:
   default:
     url: ${DB_URL:jdbc:postgresql://localhost:1111/telegram_bot}

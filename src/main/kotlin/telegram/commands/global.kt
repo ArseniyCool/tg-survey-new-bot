@@ -1,6 +1,5 @@
 package telegram.commands
 
-// CODEX: Unify packages to telegram.* (commands under telegram.commands).
 import org.telegram.telegrambots.meta.api.objects.Message
 import telegram.enums.Answers
 import telegram.enums.UserStates

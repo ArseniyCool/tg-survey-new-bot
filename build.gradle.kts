@@ -15,7 +15,7 @@ dependencies {
     implementation("io.micronaut.data:micronaut-data-jdbc:4.6.0")
     implementation("io.micronaut.sql:micronaut-jdbc-hikari:5.3.0")
     runtimeOnly("org.postgresql:postgresql:42.7.3")
-    runtimeOnly("org.yaml:snakeyaml:2.2") // CODEX: Enable application.yml parsing in Micronaut 4
+    runtimeOnly("org.yaml:snakeyaml:2.2")
     kapt("io.micronaut.data:micronaut-data-processor:4.6.0")
 
     // Telegram
@@ -24,7 +24,7 @@ dependencies {
     // Micronaut runtime + HTTP server
     implementation("io.micronaut:micronaut-runtime:4.6.1")
     implementation("io.micronaut:micronaut-http-server-netty:4.6.1")
-    implementation("io.micronaut:micronaut-jackson-databind:4.6.1") // CODEX: Provides JsonConfiguration bean
+    implementation("io.micronaut:micronaut-jackson-databind:4.6.1")
     implementation("jakarta.inject:jakarta.inject-api:2.0.1")
 
     // KAPT: DI container generation
@@ -33,7 +33,7 @@ dependencies {
 
     // Testing
     testImplementation("io.micronaut.test:micronaut-test-junit5:4.6.1")
-    testImplementation("io.mockk:mockk:1.13.8") // CODEX: test-only
+    testImplementation("io.mockk:mockk:1.13.8")
     testImplementation(kotlin("test"))
 
     // Logging
@@ -48,7 +48,6 @@ tasks.test {
     useJUnitPlatform()
 }
 
-// CODEX: Convenience task to run from Gradle (IDEA can also run MainKt directly)
 tasks.register<JavaExec>("runApp") {
     group = "application"
     description = "Run the bot application"

@@ -66,7 +66,7 @@ class SurveyServiceTest {
 
     @Test
     fun `caps command should go through too`() {
-        val response = service.handle(mockTelegramUpdate("/StArT"))
+        val response = service.handle(mockTelegramUpdate(Examples.CAPS_START.text))
         assertEquals(Answers.WELCOME.text, response.text)
     }
 

@@ -1,8 +1,5 @@
 package telegram.services
 
-// CODEX: Fix imports after package unification (telegram.commands.*).
-// CODEX: Guard against non-text updates (callbacks, joins, etc.) to avoid NPE.
-
 import jakarta.inject.Singleton
 import java.util.concurrent.ConcurrentHashMap
 import org.telegram.telegrambots.meta.api.objects.Message
@@ -14,7 +11,6 @@ import telegram.enums.UserStates
 
 @Singleton
 class SurveyService {
-    // In-memory session state (thread-safe). Consider persisting to DB for restart safety.
     val userStates: MutableMap<Long, UserStates> = ConcurrentHashMap()
 
     fun handle(update: Update): Message {
