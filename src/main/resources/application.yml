@@ -1,25 +1,14 @@
+# CODEX: Do not commit secrets. Provide TELEGRAM_TOKEN (and DB_* if needed) via environment/secret storage.
 telegram:
-  token: 8621055689:AAF2eZ-tOvXfjSWxXa3ZJQDRHqbZQWIJEVY
+  token: ${TELEGRAM_TOKEN}
 
 micronaut:
   server:
-    enabled: true
+    enabled: false # CODEX: set true only if you use webhooks/API
 
+    port: ${MICRONAUT_SERVER_PORT:800} # CODEX: avoid 8080 conflicts
 #micronaut:
 #  server:
 #    port: 8080
 
-datasources:
-  default:
-    url: jdbc:postgresql://localhost:1111/telegram_bot
-    driverClassName: org.postgresql.Driver
-    username: postgres
-    password: your_password
-    dialect: POSTGRES
-
-jpa:
-  default:
-    properties:
-      hibernate:
-        hbm2ddl:
-          auto: update
+# CODEX: Datasource config moved to application-db.yml (enable with MICRONAUT_ENVIRONMENTS=db).

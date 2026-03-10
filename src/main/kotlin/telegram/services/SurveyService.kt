@@ -1,37 +1,39 @@
 package telegram.services
 
+// CODEX: Fix imports after package unification (telegram.commands.*).
+// CODEX: Guard against non-text updates (callbacks, joins, etc.) to avoid NPE.
 
+import jakarta.inject.Singleton
+import java.util.concurrent.ConcurrentHashMap
+import org.telegram.telegrambots.meta.api.objects.Message
+import org.telegram.telegrambots.meta.api.objects.Update
+import telegram.commands.handleGlobalCommands
+import telegram.commands.handleStatesCommands
 import telegram.enums.Answers
 import telegram.enums.UserStates
-import jakarta.inject.Singleton
-import org.example.telegram.commands.handleGlobalCommands
-import org.example.telegram.commands.handleStatesCommands
 
-import org.telegram.telegrambots.meta.api.objects.Update //основной контейнер события
-import org.telegram.telegrambots.meta.api.objects.Message //формирование ответа
-
-/* UPDATE
-Пользователь написал сообщение
-Пользователь нажал кнопку
-Пользователь отправил команду
-Произошло любое действие с ботом
-➡ Telegram формирует объект Update и отправляет его твоему серверу.
-*/
-@Singleton //одиночный класс, класс-сервис, глобальный сервис
+@Singleton
 class SurveyService {
-    val userStates = mutableMapOf<Long, UserStates>()
-
+    // In-memory session state (thread-safe). Consider persisting to DB for restart safety.
+    val userStates: MutableMap<Long, UserStates> = ConcurrentHashMap()
 
     fun handle(update: Update): Message {
+        val incoming = update.message
+        val incomingText = incoming?.text
+        if (incoming == null || incomingText == null) {
+            val fallback = Message()
+            fallback.text = Answers.DONT_UNDERSTAND.text
+            return fallback
+        }
 
-        val chatId = update.message.chatId //id пользователя
-        val fromUserMessage = update.message.text.lowercase() //сообщение пользователя
-        val toUserMessage = Message() //объект ответа
+        val chatId = incoming.chatId
+        val fromUserMessage = incomingText.lowercase()
+        val toUserMessage = Message()
 
-        // 1. Глобальные команды
+        // 1. Global commands
         if (handleGlobalCommands(fromUserMessage, chatId, userStates, toUserMessage)) return toUserMessage
 
-        // 2. Команды в состоянии приема данных
+        // 2. State-driven commands
         if (handleStatesCommands(fromUserMessage, chatId, userStates, toUserMessage)) return toUserMessage
 
         // 3. Fallback

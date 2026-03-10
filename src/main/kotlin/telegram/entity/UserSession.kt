@@ -1,5 +1,6 @@
-package org.example.telegram.entity
+package telegram.entity
 
+// CODEX: Unify packages to telegram.* (entity under telegram.entity).
 import io.micronaut.data.annotation.Id
 import io.micronaut.data.annotation.MappedEntity
 

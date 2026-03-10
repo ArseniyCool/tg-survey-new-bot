@@ -5,3 +5,8 @@ micronaut:
 #micronaut:
 #  server:
 #    port: 8080
+
+# CODEX: Unit tests do not require a DB. Disable datasource beans.
+datasources:
+  default:
+    enabled: false
