@@ -1,25 +1,9 @@
 telegram:
-  token: 8621055689:AAF2eZ-tOvXfjSWxXa3ZJQDRHqbZQWIJEVY
+  token: ${TELEGRAM_TOKEN}
 
 micronaut:
   server:
-    enabled: true
+    enabled: false
 
-#micronaut:
-#  server:
-#    port: 8080
+    port: ${MICRONAUT_SERVER_PORT:800}
 
-datasources:
-  default:
-    url: jdbc:postgresql://localhost:1111/telegram_bot
-    driverClassName: org.postgresql.Driver
-    username: postgres
-    password: your_password
-    dialect: POSTGRES
-
-jpa:
-  default:
-    properties:
-      hibernate:
-        hbm2ddl:
-          auto: update

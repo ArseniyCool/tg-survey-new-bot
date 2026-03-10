@@ -1,33 +1,24 @@
 package telegram.services
 
-import telegram.enums.Answers
-import telegram.enums.Commands
-import telegram.enums.Examples
-import io.micronaut.test.extensions.junit5.annotation.MicronautTest
-import jakarta.inject.Inject
-
-import io.mockk.*
-
-//стандарт тестового фреймворка
+import io.mockk.every
+import io.mockk.mockk
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-
-import org.telegram.telegrambots.meta.api.objects.Update
 import org.telegram.telegrambots.meta.api.objects.Message
+import org.telegram.telegrambots.meta.api.objects.Update
+import telegram.enums.Answers
+import telegram.enums.Commands
+import telegram.enums.Examples
 
-@MicronautTest(environments = ["test"], startApplication = false)
 class SurveyServiceTest {
 
-    @field:Inject
-    lateinit var service: SurveyService
-    //lateinit - инициализируется позже
-    //Kotlin имеет: property field getter setter
-    //Micronaut работает именно с field.
-    //Inject ("вставить") автоматически подставить объект.
+    private lateinit var service: SurveyService
 
     @BeforeEach
-    fun clearState() {
+    fun setUp() {
+        // CODEX: Keep this test unit-level (no Micronaut context, no DataSource required).
+        service = SurveyService()
         service.userStates.clear()
     }
 
@@ -47,6 +38,7 @@ class SurveyServiceTest {
         val startResponse = service.handle(mockTelegramUpdate(Commands.START.text))
         assertEquals(Answers.WELCOME.text, startResponse.text)
     }
+
     @Test
     fun `correct phone number should return number saved`() {
         service.handle(mockTelegramUpdate(Commands.START.text))
@@ -54,6 +46,7 @@ class SurveyServiceTest {
         val phoneResponse = service.handle(mockTelegramUpdate(Examples.CORRECT_NUMBER.text))
         assertEquals(Answers.NUMBER_SAVED.text, phoneResponse.text)
     }
+
     @Test
     fun `incorrect phone number should return number not saved`() {
         service.handle(mockTelegramUpdate(Commands.START.text))
@@ -73,7 +66,7 @@ class SurveyServiceTest {
 
     @Test
     fun `caps command should go through too`() {
-        val response = service.handle(mockTelegramUpdate("/StArT"))
+        val response = service.handle(mockTelegramUpdate(Examples.CAPS_START.text))
         assertEquals(Answers.WELCOME.text, response.text)
     }
 
@@ -99,20 +92,15 @@ class SurveyServiceTest {
 
     @Test
     fun `full user survey flow should work`() {
-
-        // 1. Start conversation
         val startResponse = service.handle(mockTelegramUpdate(Commands.START.text))
         assertEquals(Answers.WELCOME.text, startResponse.text)
 
-        // 2. Send valid phone number
         val phoneResponse = service.handle(mockTelegramUpdate(Examples.CORRECT_NUMBER.text))
         assertEquals(Answers.NUMBER_SAVED.text, phoneResponse.text)
 
-        // 3. Send project name
         val projectResponse = service.handle(mockTelegramUpdate(Examples.PROJECT.text))
         assertEquals(Answers.PROJECT_SAVED.text, projectResponse.text)
 
-        // 4. After survey completion state should be cleared
         val fallbackResponse = service.handle(mockTelegramUpdate(Examples.SOMETHING.text))
         assertEquals(Answers.DONT_UNDERSTAND.text, fallbackResponse.text)
     }

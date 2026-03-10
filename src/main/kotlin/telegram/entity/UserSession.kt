@@ -1,4 +1,4 @@
-package org.example.telegram.entity
+package telegram.entity
 
 import io.micronaut.data.annotation.Id
 import io.micronaut.data.annotation.MappedEntity

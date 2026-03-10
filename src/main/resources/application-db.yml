@@ -1,0 +1,7 @@
+datasources:
+  default:
+    url: ${DB_URL:jdbc:postgresql://localhost:1111/telegram_bot}
+    driverClassName: org.postgresql.Driver
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:your_password}
+    dialect: POSTGRES
