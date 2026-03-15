@@ -30,10 +30,12 @@ class SurveyService {
         val toUserMessage = Message()
 
         // 1) Global commands: compare in normalized form, so /StArT works.
-        if (handleGlobalCommands(normalizedText, chatId, userStates, drafts, toUserMessage)) return toUserMessage
+        if (handleGlobalCommands(normalizedText, chatId, userStates, drafts, toUserMessage))
+            return toUserMessage
 
         // 2) State-driven input: keep original casing for project/purpose.
-        if (handleStatesCommands(rawText, chatId, userStates, drafts, toUserMessage)) return toUserMessage
+        if (handleStatesCommands(rawText, chatId, userStates, drafts, toUserMessage))
+            return toUserMessage
 
         // 3) Fallback
         toUserMessage.text = Answers.DONT_UNDERSTAND.text
