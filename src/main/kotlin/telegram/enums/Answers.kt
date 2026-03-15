@@ -1,4 +1,4 @@
-package telegram.enums
+﻿package telegram.enums
 
 enum class Answers(val text: String) {
     WELCOME("Добро пожаловать!\n\nПожалуйста, отправьте номер телефона."),

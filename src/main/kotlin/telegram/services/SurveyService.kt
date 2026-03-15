@@ -9,9 +9,12 @@ import telegram.commands.handleStatesCommands
 import telegram.enums.Answers
 import telegram.enums.UserStates
 import telegram.model.SurveyDraft
+import telegram.persistence.SurveySubmissionWriter
 
 @Singleton
-class SurveyService {
+class SurveyService(
+    private val submissionWriter: SurveySubmissionWriter,
+) {
     val userStates: MutableMap<Long, UserStates> = ConcurrentHashMap()
     val drafts: MutableMap<Long, SurveyDraft> = ConcurrentHashMap()
 
@@ -29,15 +32,17 @@ class SurveyService {
         val normalizedText = rawText.lowercase()
         val toUserMessage = Message()
 
-        // 1) Global commands: compare in normalized form, so /StArT works.
-        if (handleGlobalCommands(normalizedText, chatId, userStates, drafts, toUserMessage))
+        if (handleGlobalCommands(normalizedText, chatId, userStates, drafts, toUserMessage)) {
             return toUserMessage
+        }
 
-        // 2) State-driven input: keep original casing for project/purpose.
-        if (handleStatesCommands(rawText, chatId, userStates, drafts, toUserMessage))
+        if (handleStatesCommands(rawText, chatId, userStates, drafts, toUserMessage) { id, completed ->
+                submissionWriter.write(id, completed)
+            }
+        ) {
             return toUserMessage
+        }
 
-        // 3) Fallback
         toUserMessage.text = Answers.DONT_UNDERSTAND.text
         return toUserMessage
     }

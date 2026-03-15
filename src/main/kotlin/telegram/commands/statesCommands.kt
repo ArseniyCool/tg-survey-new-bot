@@ -13,6 +13,7 @@ fun handleStatesCommands(
     userStates: MutableMap<Long, UserStates>,
     drafts: MutableMap<Long, SurveyDraft>,
     toUserMessage: Message,
+    onCompleted: (Long, SurveyDraft) -> Unit,
 ): Boolean {
 
     val state = userStates[chatId] ?: return false
@@ -46,7 +47,10 @@ fun handleStatesCommands(
         UserStates.WAITING_FOR_PURPOSE -> {
             val purpose = fromUserMessage.trim()
             val draft = drafts[chatId] ?: SurveyDraft()
-            drafts[chatId] = draft.copy(purpose = purpose)
+            val completed = draft.copy(purpose = purpose)
+
+            // Persist before clearing in-memory state.
+            onCompleted(chatId, completed)
 
             toUserMessage.text = Answers.PURPOSE_SAVED.text
             userStates.remove(chatId)
