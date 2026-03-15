@@ -11,14 +11,24 @@ import org.telegram.telegrambots.meta.api.objects.Update
 import telegram.enums.Answers
 import telegram.enums.Commands
 import telegram.enums.Examples
+import telegram.model.SurveyDraft
+import telegram.persistence.SurveySubmissionWriter
 
 class SurveyServiceTest {
 
     private lateinit var service: SurveyService
+    private var lastSaved: Pair<Long, SurveyDraft>? = null
 
     @BeforeEach
     fun setUp() {
-        service = SurveyService()
+        lastSaved = null
+        val writer = object : SurveySubmissionWriter {
+            override fun write(chatId: Long, draft: SurveyDraft) {
+                lastSaved = chatId to draft
+            }
+        }
+
+        service = SurveyService(writer)
         service.userStates.clear()
         service.drafts.clear()
     }
@@ -86,13 +96,20 @@ class SurveyServiceTest {
     }
 
     @Test
-    fun `purpose should finish survey`() {
+    fun `purpose should finish survey and persist submission`() {
         service.handle(mockTelegramUpdate(Commands.START.text))
         service.handle(mockTelegramUpdate(Examples.CORRECT_NUMBER.text))
         service.handle(mockTelegramUpdate(Examples.PROJECT.text))
 
         val purposeResponse = service.handle(mockTelegramUpdate(Examples.PURPOSE.text))
         assertEquals(Answers.PURPOSE_SAVED.text, purposeResponse.text)
+
+        val saved = lastSaved
+        assertNotNull(saved)
+        assertEquals(1L, saved!!.first)
+        assertEquals(Examples.CORRECT_NUMBER.text, saved.second.phone)
+        assertEquals(Examples.PROJECT.text, saved.second.projectName)
+        assertEquals(Examples.PURPOSE.text, saved.second.purpose)
     }
 
     @Test
