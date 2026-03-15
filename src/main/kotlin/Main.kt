@@ -1,3 +1,5 @@
+package telegram
+
 import io.micronaut.runtime.Micronaut
 
 fun main() {

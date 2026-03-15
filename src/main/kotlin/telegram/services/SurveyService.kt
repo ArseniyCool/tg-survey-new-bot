@@ -8,10 +8,12 @@ import telegram.commands.handleGlobalCommands
 import telegram.commands.handleStatesCommands
 import telegram.enums.Answers
 import telegram.enums.UserStates
+import telegram.model.SurveyDraft
 
 @Singleton
 class SurveyService {
     val userStates: MutableMap<Long, UserStates> = ConcurrentHashMap()
+    val drafts: MutableMap<Long, SurveyDraft> = ConcurrentHashMap()
 
     fun handle(update: Update): Message {
         val incoming = update.message
@@ -27,10 +29,10 @@ class SurveyService {
         val toUserMessage = Message()
 
         // 1. Global commands
-        if (handleGlobalCommands(fromUserMessage, chatId, userStates, toUserMessage)) return toUserMessage
+        if (handleGlobalCommands(fromUserMessage, chatId, userStates, drafts, toUserMessage)) return toUserMessage
 
         // 2. State-driven commands
-        if (handleStatesCommands(fromUserMessage, chatId, userStates, toUserMessage)) return toUserMessage
+        if (handleStatesCommands(fromUserMessage, chatId, userStates, drafts, toUserMessage)) return toUserMessage
 
         // 3. Fallback
         toUserMessage.text = Answers.DONT_UNDERSTAND.text
