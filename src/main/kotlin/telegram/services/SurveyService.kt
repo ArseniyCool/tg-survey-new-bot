@@ -8,10 +8,12 @@ import telegram.commands.handleGlobalCommands
 import telegram.commands.handleStatesCommands
 import telegram.enums.Answers
 import telegram.enums.UserStates
+import telegram.model.SurveyDraft
 
 @Singleton
 class SurveyService {
     val userStates: MutableMap<Long, UserStates> = ConcurrentHashMap()
+    val drafts: MutableMap<Long, SurveyDraft> = ConcurrentHashMap()
 
     fun handle(update: Update): Message {
         val incoming = update.message
@@ -23,16 +25,19 @@ class SurveyService {
         }
 
         val chatId = incoming.chatId
-        val fromUserMessage = incomingText.lowercase()
+        val rawText = incomingText.trim()
+        val normalizedText = rawText.lowercase()
         val toUserMessage = Message()
 
-        // 1. Global commands
-        if (handleGlobalCommands(fromUserMessage, chatId, userStates, toUserMessage)) return toUserMessage
+        // 1) Global commands: compare in normalized form, so /StArT works.
+        if (handleGlobalCommands(normalizedText, chatId, userStates, drafts, toUserMessage))
+            return toUserMessage
 
-        // 2. State-driven commands
-        if (handleStatesCommands(fromUserMessage, chatId, userStates, toUserMessage)) return toUserMessage
+        // 2) State-driven input: keep original casing for project/purpose.
+        if (handleStatesCommands(rawText, chatId, userStates, drafts, toUserMessage))
+            return toUserMessage
 
-        // 3. Fallback
+        // 3) Fallback
         toUserMessage.text = Answers.DONT_UNDERSTAND.text
         return toUserMessage
     }

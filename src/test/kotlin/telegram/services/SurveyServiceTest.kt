@@ -3,6 +3,7 @@ package telegram.services
 import io.mockk.every
 import io.mockk.mockk
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.telegram.telegrambots.meta.api.objects.Message
@@ -17,9 +18,9 @@ class SurveyServiceTest {
 
     @BeforeEach
     fun setUp() {
-        // CODEX: Keep this test unit-level (no Micronaut context, no DataSource required).
         service = SurveyService()
         service.userStates.clear()
+        service.drafts.clear()
     }
 
     private fun mockTelegramUpdate(text: String): Update {
@@ -56,7 +57,7 @@ class SurveyServiceTest {
     }
 
     @Test
-    fun `project command should return project saved`() {
+    fun `project name should ask for purpose`() {
         service.handle(mockTelegramUpdate(Commands.START.text))
         service.handle(mockTelegramUpdate(Examples.CORRECT_NUMBER.text))
 
@@ -65,8 +66,38 @@ class SurveyServiceTest {
     }
 
     @Test
+    fun `project and purpose should preserve original casing`() {
+        service.handle(mockTelegramUpdate("/StArT"))
+        service.handle(mockTelegramUpdate(Examples.CORRECT_NUMBER.text))
+
+        val projectInput = "My COOL Project"
+        service.handle(mockTelegramUpdate(projectInput))
+
+        val draftAfterProject = service.drafts[1L]
+        assertNotNull(draftAfterProject)
+        assertEquals(projectInput, draftAfterProject!!.projectName)
+
+        val purposeInput = "For Internal Automation"
+        service.handle(mockTelegramUpdate(purposeInput))
+
+        // After completion draft is removed
+        val draftAfterPurpose = service.drafts[1L]
+        assertEquals(null, draftAfterPurpose)
+    }
+
+    @Test
+    fun `purpose should finish survey`() {
+        service.handle(mockTelegramUpdate(Commands.START.text))
+        service.handle(mockTelegramUpdate(Examples.CORRECT_NUMBER.text))
+        service.handle(mockTelegramUpdate(Examples.PROJECT.text))
+
+        val purposeResponse = service.handle(mockTelegramUpdate(Examples.PURPOSE.text))
+        assertEquals(Answers.PURPOSE_SAVED.text, purposeResponse.text)
+    }
+
+    @Test
     fun `caps command should go through too`() {
-        val response = service.handle(mockTelegramUpdate(Examples.CAPS_START.text))
+        val response = service.handle(mockTelegramUpdate("/StArT"))
         assertEquals(Answers.WELCOME.text, response.text)
     }
 
@@ -91,6 +122,15 @@ class SurveyServiceTest {
     }
 
     @Test
+    fun `non-text update should return fallback`() {
+        val update = mockk<Update>()
+        every { update.message } returns null
+
+        val response = service.handle(update)
+        assertEquals(Answers.DONT_UNDERSTAND.text, response.text)
+    }
+
+    @Test
     fun `full user survey flow should work`() {
         val startResponse = service.handle(mockTelegramUpdate(Commands.START.text))
         assertEquals(Answers.WELCOME.text, startResponse.text)
@@ -100,6 +140,9 @@ class SurveyServiceTest {
 
         val projectResponse = service.handle(mockTelegramUpdate(Examples.PROJECT.text))
         assertEquals(Answers.PROJECT_SAVED.text, projectResponse.text)
+
+        val purposeResponse = service.handle(mockTelegramUpdate(Examples.PURPOSE.text))
+        assertEquals(Answers.PURPOSE_SAVED.text, purposeResponse.text)
 
         val fallbackResponse = service.handle(mockTelegramUpdate(Examples.SOMETHING.text))
         assertEquals(Answers.DONT_UNDERSTAND.text, fallbackResponse.text)
