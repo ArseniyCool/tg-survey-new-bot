@@ -54,13 +54,51 @@ Invoke-RestMethod "https://api.telegram.org/bot$token/getWebhookInfo"
 2. Напишите `/start`.
 3. Далее отправьте номер телефона, название проекта, назначение.
 
+## 6) Подключение базы данных (PostgreSQL) и проверка сохранения
+
+По умолчанию приложение может работать без БД. Для сохранения анкет в PostgreSQL включается окружение `db`.
+
+1. Установите PostgreSQL и убедитесь, что сервер запущен.
+2. Создайте базу данных `telegram_bot`.
+   - Пример для PowerShell (пароль задайте свой):
+
+```powershell
+$env:PGPASSWORD="123"
+& "C:\Program Files\PostgreSQL\18\bin\psql.exe" -h localhost -p 1111 -U postgres -c "CREATE DATABASE telegram_bot;"
+```
+
+3. В IntelliJ IDEA (Run Configuration для `MainKt`) добавьте Environment variables:
+   - `MICRONAUT_ENVIRONMENTS=db`
+   - `DB_PASSWORD=<ваш_пароль>` (например `123`)
+   - (опционально) `DB_USERNAME=postgres`
+   - (опционально) `DB_URL=jdbc:postgresql://localhost:1111/telegram_bot`
+
+4. Запустите приложение. Таблица `survey_submissions` создастся автоматически при старте.
+5. Проверьте, что анкета записалась:
+
+```powershell
+$env:PGPASSWORD="123"
+& "C:\Program Files\PostgreSQL\18\bin\psql.exe" -h localhost -p 1111 -U postgres -d telegram_bot -c "SELECT id, chat_id, phone, project_name, purpose, created_at FROM survey_submissions ORDER BY created_at DESC LIMIT 20;"
+```
+
+Примечание про кодировку (если в `psql` отображаются «кракозябры»):
+
+```powershell
+chcp 65001
+$env:PGCLIENTENCODING="UTF8"
+```
+
 ## Быстрая диагностика
 
 - Если бот не реагирует, проверьте в окне ngrok, что появляются запросы (Connections > 0).
 - В веб-интерфейсе ngrok можно посмотреть входящие запросы: `http://127.0.0.1:4040`
 - Если порт занят, измените порт в Run Configuration: `MICRONAUT_SERVER_PORT=8090` и запустите `ngrok http 8090`
+- Если включили `MICRONAUT_ENVIRONMENTS=db` и приложение не стартует:
+  - проверьте, что PostgreSQL запущен и слушает нужный порт;
+  - проверьте переменные `DB_URL`, `DB_USERNAME`, `DB_PASSWORD`.
 
 ## Безопасность
 
 - Никогда не коммитьте токен в репозиторий.
 - Если токен случайно попал в чат/репозиторий, перевыпустите его через BotFather.
+
