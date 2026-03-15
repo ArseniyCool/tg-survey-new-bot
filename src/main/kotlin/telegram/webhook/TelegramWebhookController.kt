@@ -19,8 +19,9 @@ class TelegramWebhookController(
 
     @Post(uri = "/webhook", consumes = [MediaType.APPLICATION_JSON], produces = [MediaType.APPLICATION_JSON])
     fun webhook(@Body update: Update): HttpResponse<Any> {
+        val chatId = update.message?.chatId
+
         return try {
-            val chatId = update.message?.chatId
             val reply = surveyService.handle(update)
             val text = reply.text
 
@@ -33,7 +34,12 @@ class TelegramWebhookController(
         } catch (e: Exception) {
             // Never return 500 to Telegram, otherwise it will keep retrying the same update.
             log.error("Failed to handle telegram webhook update", e)
-            HttpResponse.ok()
+
+            if (chatId == null) {
+                HttpResponse.ok()
+            } else {
+                HttpResponse.ok(SendMessage(chatId.toString(), "Ошибка сохранения анкеты. Попробуйте позже."))
+            }
         }
     }
 }
