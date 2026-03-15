@@ -2,16 +2,18 @@ package telegram.persistence
 
 import io.micronaut.context.annotation.Requires
 import io.micronaut.context.event.ApplicationEventListener
+import io.micronaut.data.connection.annotation.Connectable
 import io.micronaut.runtime.event.ApplicationStartupEvent
 import jakarta.inject.Singleton
 import javax.sql.DataSource
 
 @Singleton
 @Requires(env = ["db"])
-class SurveySubmissionSchemaInitializer(
+open class SurveySubmissionSchemaInitializer(
     private val dataSource: DataSource,
 ) : ApplicationEventListener<ApplicationStartupEvent> {
 
+    @Connectable // Ensure a "current connection" exists for Micronaut Data's contextual connections.
     override fun onApplicationEvent(event: ApplicationStartupEvent) {
         dataSource.connection.use { conn ->
             conn.createStatement().use { st ->
