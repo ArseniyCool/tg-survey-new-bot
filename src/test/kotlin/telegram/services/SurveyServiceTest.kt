@@ -3,6 +3,7 @@ package telegram.services
 import io.mockk.every
 import io.mockk.mockk
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.telegram.telegrambots.meta.api.objects.Message
@@ -62,6 +63,26 @@ class SurveyServiceTest {
 
         val projectResponse = service.handle(mockTelegramUpdate(Examples.PROJECT.text))
         assertEquals(Answers.PROJECT_SAVED.text, projectResponse.text)
+    }
+
+    @Test
+    fun `project and purpose should preserve original casing`() {
+        service.handle(mockTelegramUpdate("/StArT"))
+        service.handle(mockTelegramUpdate(Examples.CORRECT_NUMBER.text))
+
+        val projectInput = "My COOL Project"
+        service.handle(mockTelegramUpdate(projectInput))
+
+        val draftAfterProject = service.drafts[1L]
+        assertNotNull(draftAfterProject)
+        assertEquals(projectInput, draftAfterProject!!.projectName)
+
+        val purposeInput = "For Internal Automation"
+        service.handle(mockTelegramUpdate(purposeInput))
+
+        // After completion draft is removed
+        val draftAfterPurpose = service.drafts[1L]
+        assertEquals(null, draftAfterPurpose)
     }
 
     @Test

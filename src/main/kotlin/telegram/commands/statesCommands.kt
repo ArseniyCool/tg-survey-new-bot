@@ -19,13 +19,14 @@ fun handleStatesCommands(
 
     when (state) {
         UserStates.WAITING_FOR_PHONE -> {
-            if (!isValidPhoneNumber(fromUserMessage)) {
+            val phone = fromUserMessage.trim()
+            if (!isValidPhoneNumber(phone)) {
                 toUserMessage.text = Answers.INCORRECT_NUMBER.text
                 return true
             }
 
             val draft = drafts[chatId] ?: SurveyDraft()
-            drafts[chatId] = draft.copy(phone = fromUserMessage)
+            drafts[chatId] = draft.copy(phone = phone)
 
             toUserMessage.text = Answers.NUMBER_SAVED.text
             userStates[chatId] = UserStates.WAITING_FOR_PROJECT_NAME
@@ -33,8 +34,9 @@ fun handleStatesCommands(
         }
 
         UserStates.WAITING_FOR_PROJECT_NAME -> {
+            val projectName = fromUserMessage.trim()
             val draft = drafts[chatId] ?: SurveyDraft()
-            drafts[chatId] = draft.copy(projectName = fromUserMessage)
+            drafts[chatId] = draft.copy(projectName = projectName)
 
             toUserMessage.text = Answers.PROJECT_SAVED.text
             userStates[chatId] = UserStates.WAITING_FOR_PURPOSE
@@ -42,8 +44,9 @@ fun handleStatesCommands(
         }
 
         UserStates.WAITING_FOR_PURPOSE -> {
+            val purpose = fromUserMessage.trim()
             val draft = drafts[chatId] ?: SurveyDraft()
-            drafts[chatId] = draft.copy(purpose = fromUserMessage)
+            drafts[chatId] = draft.copy(purpose = purpose)
 
             toUserMessage.text = Answers.PURPOSE_SAVED.text
             userStates.remove(chatId)
