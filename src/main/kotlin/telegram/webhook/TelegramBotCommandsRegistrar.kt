@@ -1,4 +1,8 @@
-﻿package telegram.webhook
+package telegram.webhook
+
+/**
+ * Регистрация меню команд бота (setMyCommands) при старте приложения.
+ */
 
 import io.micronaut.context.annotation.Property
 import io.micronaut.context.annotation.Requires

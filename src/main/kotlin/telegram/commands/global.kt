@@ -1,4 +1,9 @@
-﻿package telegram.commands
+package telegram.commands
+
+/**
+ * Обработчики глобальных команд (/start, /help, /cancel, /ping).
+ * Эти команды работают независимо от текущего шага опроса.
+ */
 
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardRemove
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup

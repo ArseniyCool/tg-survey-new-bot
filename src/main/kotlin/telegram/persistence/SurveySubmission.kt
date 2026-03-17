@@ -1,4 +1,8 @@
-﻿package telegram.persistence
+package telegram.persistence
+
+/**
+ * Entity анкеты для таблицы survey_submissions (Micronaut Data).
+ */
 
 import io.micronaut.data.annotation.GeneratedValue
 import io.micronaut.data.annotation.Id

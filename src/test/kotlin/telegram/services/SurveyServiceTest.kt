@@ -1,4 +1,8 @@
-﻿package telegram.services
+package telegram.services
+
+/**
+ * Юнит-тесты SurveyService: проверяют сценарии опроса, валидации и сохранения.
+ */
 
 import io.mockk.every
 import io.mockk.mockk

@@ -1,5 +1,9 @@
 package telegram.persistence
 
+/**
+ * Инициализация схемы: создает таблицу survey_submissions при старте (env=db).
+ */
+
 import io.micronaut.context.annotation.Requires
 import io.micronaut.context.event.ApplicationEventListener
 import io.micronaut.data.connection.annotation.Connectable

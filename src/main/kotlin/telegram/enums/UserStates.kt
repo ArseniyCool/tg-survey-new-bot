@@ -1,4 +1,8 @@
-﻿package telegram.enums
+package telegram.enums
+
+/**
+ * Состояния диалога: какой шаг опроса ожидается от пользователя.
+ */
 
 enum class UserStates {
     WAITING_FOR_PHONE,

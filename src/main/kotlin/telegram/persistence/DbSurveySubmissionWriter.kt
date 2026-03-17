@@ -1,4 +1,8 @@
-﻿package telegram.persistence
+package telegram.persistence
+
+/**
+ * Запись заполненной анкеты в PostgreSQL (в окружении db).
+ */
 
 import io.micronaut.context.annotation.Requires
 import io.micronaut.data.connection.annotation.Connectable

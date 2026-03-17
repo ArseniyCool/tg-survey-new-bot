@@ -1,5 +1,9 @@
 package telegram.entity
 
+/**
+ * Сущность (entity) для хранения данных сессии пользователя в базе.
+ */
+
 import io.micronaut.data.annotation.Id
 import io.micronaut.data.annotation.MappedEntity
 

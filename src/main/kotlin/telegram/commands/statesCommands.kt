@@ -1,4 +1,9 @@
-﻿package telegram.commands
+package telegram.commands
+
+/**
+ * Обработка пользовательского ввода по шагам опроса (состояния).
+ * Здесь выполняются проверки и формируются ответы/квитанция.
+ */
 
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardRemove
 import telegram.enums.Answers

@@ -1,4 +1,8 @@
-﻿package telegram.services
+package telegram.services
+
+/**
+ * Основная логика опроса: принимает Update, управляет состояниями и черновиком.
+ */
 
 import jakarta.inject.Singleton
 import java.util.concurrent.ConcurrentHashMap

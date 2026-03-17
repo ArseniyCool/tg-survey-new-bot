@@ -1,4 +1,9 @@
-﻿package telegram.enums
+package telegram.enums
+
+/**
+ * Тексты ответов бота (сообщения пользователю).
+ * Используется форматирование HTML (ParseMode.HTML).
+ */
 
 enum class Answers(val text: String) {
     WELCOME(

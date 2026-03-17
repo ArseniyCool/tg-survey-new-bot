@@ -1,5 +1,9 @@
 package telegram.persistence
 
+/**
+ * Заглушка записи анкеты, когда окружение db выключено.
+ */
+
 import io.micronaut.context.annotation.Requires
 import jakarta.inject.Singleton
 import telegram.model.SurveyDraft

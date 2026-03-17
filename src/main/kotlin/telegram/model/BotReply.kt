@@ -1,4 +1,8 @@
-﻿package telegram.model
+package telegram.model
+
+/**
+ * Модель ответа бота: текст + опциональная клавиатура (reply markup).
+ */
 
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboard
 

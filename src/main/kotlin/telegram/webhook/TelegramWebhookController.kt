@@ -1,4 +1,8 @@
-﻿package telegram.webhook
+package telegram.webhook
+
+/**
+ * Webhook-контроллер: принимает обновления Telegram и возвращает SendMessage.
+ */
 
 import io.micronaut.http.HttpResponse
 import io.micronaut.http.MediaType
