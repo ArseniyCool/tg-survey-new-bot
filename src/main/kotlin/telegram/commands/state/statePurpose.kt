@@ -1,4 +1,4 @@
-package telegram.commands
+package telegram.commands.state
 
 /**
  * Обработка шага "назначение" и формирование итоговой квитанции.

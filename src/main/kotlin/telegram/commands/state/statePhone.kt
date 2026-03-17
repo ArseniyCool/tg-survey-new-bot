@@ -1,10 +1,11 @@
-package telegram.commands
+package telegram.commands.state
 
 /**
  * Обработка шага "телефон".
  */
 
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardRemove
+import telegram.commands.phoneKeyboard
 import telegram.enums.Answers
 import telegram.enums.UserStates
 import telegram.format.escapeHtml

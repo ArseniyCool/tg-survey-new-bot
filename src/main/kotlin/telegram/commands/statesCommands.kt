@@ -8,6 +8,9 @@ package telegram.commands
 import telegram.enums.UserStates
 import telegram.model.MutableBotReply
 import telegram.model.SurveyDraft
+import telegram.commands.state.handleWaitingForPhone
+import telegram.commands.state.handleWaitingForProjectName
+import telegram.commands.state.handleWaitingForPurpose
 import kotlin.collections.set
 
 fun handleStatesCommands(

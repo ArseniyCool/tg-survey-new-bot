@@ -1,4 +1,4 @@
-package telegram.commands
+package telegram.commands.state
 
 /**
  * Обработка шага "название проекта".
