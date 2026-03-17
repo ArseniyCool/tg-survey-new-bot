@@ -19,6 +19,33 @@ private data class CancelBackStep(
     val replyMarkup: () -> ReplyKeyboard?,
 )
 
+/**
+ * Шаги для команды /cancel по индексу шага: state.stepIndex - 1.
+ *
+ * Индекс 0 = шаг "телефон", индекс 1 = "название проекта", индекс 2 = "назначение".
+ * COMPLETED имеет stepIndex=3 и возвращает на индекс 2 (назначение).
+ */
+private val cancelBackSteps: List<CancelBackStep> = listOf(
+    CancelBackStep(
+        stateToReturn = UserStates.WAITING_FOR_PHONE,
+        clearDraft = { draft -> draft.copy(phone = null) },
+        message = "⬅️ Ок, вернулись к шагу <b>телефон</b>. Отправьте номер еще раз.",
+        replyMarkup = { phoneKeyboard() },
+    ),
+    CancelBackStep(
+        stateToReturn = UserStates.WAITING_FOR_PROJECT_NAME,
+        clearDraft = { draft -> draft.copy(projectName = null) },
+        message = "⬅️ Ок, вернулись к шагу <b>название проекта</b>. Введите название проекта.",
+        replyMarkup = { ReplyKeyboardRemove(true) },
+    ),
+    CancelBackStep(
+        stateToReturn = UserStates.WAITING_FOR_PURPOSE,
+        clearDraft = { draft -> draft.copy(purpose = null) },
+        message = "⬅️ Ок, вернулись к шагу <b>назначение</b>. Введите назначение проекта.",
+        replyMarkup = { ReplyKeyboardRemove(true) },
+    ),
+)
+
 internal fun handleCancelCommand(
     chatId: Long,
     userStates: MutableMap<Long, UserStates>,
@@ -44,29 +71,8 @@ internal fun handleCancelCommand(
     val returnIndex = currentIndex - 1
 
     // Шаг, на который возвращаемся, определяется автоматически: "на 1 меньше".
-    // Важно: при откате мы очищаем поле, которое относится к этому шагу.
-    val stepsByIndex: Map<Int, CancelBackStep> = mapOf(
-        UserStates.WAITING_FOR_PHONE.stepIndex to CancelBackStep(
-            stateToReturn = UserStates.WAITING_FOR_PHONE,
-            clearDraft = { it.copy(phone = null) },
-            message = "⬅️ Ок, вернулись к шагу <b>телефон</b>. Отправьте номер еще раз.",
-            replyMarkup = { phoneKeyboard() },
-        ),
-        UserStates.WAITING_FOR_PROJECT_NAME.stepIndex to CancelBackStep(
-            stateToReturn = UserStates.WAITING_FOR_PROJECT_NAME,
-            clearDraft = { it.copy(projectName = null) },
-            message = "⬅️ Ок, вернулись к шагу <b>название проекта</b>. Введите название проекта.",
-            replyMarkup = { ReplyKeyboardRemove(true) },
-        ),
-        UserStates.WAITING_FOR_PURPOSE.stepIndex to CancelBackStep(
-            stateToReturn = UserStates.WAITING_FOR_PURPOSE,
-            clearDraft = { it.copy(purpose = null) },
-            message = "⬅️ Ок, вернулись к шагу <b>назначение</b>. Введите назначение проекта.",
-            replyMarkup = { ReplyKeyboardRemove(true) },
-        ),
-    )
-
-    val back = stepsByIndex[returnIndex]
+    // Важно: при откате мы очищаем поле черновика, которое относится к этому шагу.
+    val back = cancelBackSteps.getOrNull(returnIndex)
     if (back == null) {
         // На всякий случай: если конфигурация шагов изменилась, не падаем.
         response.text = "ℹ️ Сейчас нечего отменять. Нажмите /start, чтобы начать опрос."
