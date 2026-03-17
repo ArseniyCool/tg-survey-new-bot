@@ -1,6 +1,9 @@
 package telegram.persistence
 
-import io.micronaut.context.annotation.Requires
+/**
+ * Инициализация схемы: создает таблицу survey_submissions при старте приложения.
+ */
+
 import io.micronaut.context.event.ApplicationEventListener
 import io.micronaut.data.connection.annotation.Connectable
 import io.micronaut.runtime.event.ApplicationStartupEvent
@@ -8,12 +11,11 @@ import jakarta.inject.Singleton
 import javax.sql.DataSource
 
 @Singleton
-@Requires(env = ["db"])
 open class SurveySubmissionSchemaInitializer(
     private val dataSource: DataSource,
 ) : ApplicationEventListener<ApplicationStartupEvent> {
 
-    @Connectable // Ensure a "current connection" exists for Micronaut Data's contextual connections.
+    @Connectable // Гарантируем "текущее подключение" для контекстных подключений Micronaut Data.
     override fun onApplicationEvent(event: ApplicationStartupEvent) {
         dataSource.connection.use { conn ->
             conn.createStatement().use { st ->

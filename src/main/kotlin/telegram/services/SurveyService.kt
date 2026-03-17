@@ -1,49 +1,74 @@
 package telegram.services
 
+/**
+ * Основная логика опроса: принимает Update, управляет состояниями и черновиком.
+ */
+
 import jakarta.inject.Singleton
 import java.util.concurrent.ConcurrentHashMap
-import org.telegram.telegrambots.meta.api.objects.Message
 import org.telegram.telegrambots.meta.api.objects.Update
 import telegram.commands.handleGlobalCommands
 import telegram.commands.handleStatesCommands
 import telegram.enums.Answers
 import telegram.enums.UserStates
+import telegram.model.BotReply
+import telegram.model.MutableBotReply
 import telegram.model.SurveyDraft
-import telegram.persistence.SurveySubmissionWriter
+import telegram.persistence.SurveySubmission
+import telegram.persistence.SurveySubmissionRepository
+import java.time.Instant
 
 @Singleton
 class SurveyService(
-    private val submissionWriter: SurveySubmissionWriter,
+    private val repository: SurveySubmissionRepository,
 ) {
     val userStates: MutableMap<Long, UserStates> = ConcurrentHashMap()
     val drafts: MutableMap<Long, SurveyDraft> = ConcurrentHashMap()
 
-    fun handle(update: Update): Message {
+    fun handle(update: Update): BotReply {
         val incoming = update.message
-        val incomingText = incoming?.text
-        if (incoming == null || incomingText == null) {
-            val fallback = Message()
-            fallback.text = Answers.DONT_UNDERSTAND.text
-            return fallback
+        if (incoming == null) {
+            return BotReply(text = Answers.DONT_UNDERSTAND.text)
         }
 
         val chatId = incoming.chatId
-        val rawText = incomingText.trim()
-        val normalizedText = rawText.lowercase()
-        val toUserMessage = Message()
+        val contactPhone = incoming.contact?.phoneNumber
+        val incomingText = incoming.text
 
-        if (handleGlobalCommands(normalizedText, chatId, userStates, drafts, toUserMessage)) {
-            return toUserMessage
+        // Поддерживаем либо обычный текст, либо отправку контакта (телефон).
+        if (incomingText == null && contactPhone == null) {
+            return BotReply(text = Answers.DONT_UNDERSTAND.text)
         }
 
-        if (handleStatesCommands(rawText, chatId, userStates, drafts, toUserMessage) { id, completed ->
-                submissionWriter.write(id, completed)
+        val rawText = (incomingText ?: contactPhone ?: return BotReply(text = Answers.DONT_UNDERSTAND.text)).trim()
+        val normalizedText = rawText.lowercase()
+        val toUser = MutableBotReply()
+
+        // 1) Глобальные команды: сравниваем в нормализованном виде, чтобы работало /StArT и т.п.
+        if (handleGlobalCommands(normalizedText, chatId, userStates, drafts, toUser)) {
+            return toUser.toImmutable()
+        }
+
+        // 2) Ввод по шагам (состояниям): для названия/назначения сохраняем исходный регистр.
+        if (handleStatesCommands(rawText, chatId, userStates, drafts, toUser) { id, completed ->
+                repository.save(
+                    SurveySubmission(
+                        id = null,
+                        chatId = id,
+                        phone = completed.phone ?: "",
+                        projectName = completed.projectName ?: "",
+                        purpose = completed.purpose ?: "",
+                        createdAt = Instant.now(),
+                    )
+                )
             }
         ) {
-            return toUserMessage
+            return toUser.toImmutable()
         }
 
-        toUserMessage.text = Answers.DONT_UNDERSTAND.text
-        return toUserMessage
+        // 3) Запасной вариант (если ничего не подошло)
+        toUser.text = Answers.DONT_UNDERSTAND.text
+        return toUser.toImmutable()
     }
 }
+

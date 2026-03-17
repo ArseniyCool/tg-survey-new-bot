@@ -1,0 +1,61 @@
+package telegram.services
+
+/**
+ * Тесты глобальных команд (/start, /ping) и базового fallback-поведения.
+ */
+
+import io.mockk.every
+import io.mockk.mockk
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNotNull
+import org.junit.jupiter.api.Test
+import org.telegram.telegrambots.meta.api.objects.Update
+import telegram.enums.Answers
+import telegram.enums.Commands
+import telegram.enums.Examples
+
+class SurveyServiceCommandsTest : SurveyServiceTestBase() {
+
+    @Test
+    fun `start command should return hello`() {
+        val startResponse = service.handle(mockTelegramUpdate(Commands.START.text))
+        assertEquals(Answers.WELCOME.text, startResponse.text)
+        assertNotNull(startResponse.replyMarkup)
+    }
+
+    @Test
+    fun `caps command should go through too`() {
+        val response = service.handle(mockTelegramUpdate("/StArT"))
+        assertEquals(Answers.WELCOME.text, response.text)
+    }
+
+    @Test
+    fun `ping command should return pong`() {
+        val response = service.handle(mockTelegramUpdate(Commands.PING.text))
+        assertEquals(Answers.PONG.text, response.text)
+    }
+
+    @Test
+    fun `ping command should return pong even state active`() {
+        service.handle(mockTelegramUpdate(Commands.START.text))
+
+        val response = service.handle(mockTelegramUpdate(Commands.PING.text))
+        assertEquals(Answers.PONG.text, response.text)
+    }
+
+    @Test
+    fun `not find command should return not found`() {
+        val response = service.handle(mockTelegramUpdate(Examples.SOMETHING.text))
+        assertEquals(Answers.DONT_UNDERSTAND.text, response.text)
+    }
+
+    @Test
+    fun `non-text update should return fallback`() {
+        val update = mockk<Update>()
+        every { update.message } returns null
+
+        val response = service.handle(update)
+        assertEquals(Answers.DONT_UNDERSTAND.text, response.text)
+    }
+}
+
