@@ -50,10 +50,10 @@ class SurveyServiceFlowTest : SurveyServiceTestBase() {
 
         val saved = lastSaved
         assertNotNull(saved)
-        assertEquals(1L, saved!!.first)
-        assertEquals(Examples.CORRECT_NUMBER.text, saved.second.phone)
-        assertEquals(Examples.PROJECT.text, saved.second.projectName)
-        assertEquals(Examples.PURPOSE.text, saved.second.purpose)
+        assertEquals(1L, saved!!.chatId)
+        assertEquals(Examples.CORRECT_NUMBER.text, saved.phone)
+        assertEquals(Examples.PROJECT.text, saved.projectName)
+        assertEquals(Examples.PURPOSE.text, saved.purpose)
     }
 
     @Test

@@ -8,29 +8,32 @@ package telegram.services
 
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.slot
 import org.junit.jupiter.api.BeforeEach
 import org.telegram.telegrambots.meta.api.objects.Contact
 import org.telegram.telegrambots.meta.api.objects.Message
 import org.telegram.telegrambots.meta.api.objects.Update
-import telegram.model.SurveyDraft
-import telegram.persistence.SurveySubmissionWriter
+import telegram.persistence.SurveySubmission
+import telegram.persistence.SurveySubmissionRepository
 
 abstract class SurveyServiceTestBase {
 
     protected lateinit var service: SurveyService
-    protected var lastSaved: Pair<Long, SurveyDraft>? = null
+    protected lateinit var repository: SurveySubmissionRepository
+    protected var lastSaved: SurveySubmission? = null
 
     @BeforeEach
     fun setUp() {
         lastSaved = null
+        repository = mockk()
 
-        val writer = object : SurveySubmissionWriter {
-            override fun write(chatId: Long, draft: SurveyDraft) {
-                lastSaved = chatId to draft
-            }
+        val savedSlot = slot<SurveySubmission>()
+        every { repository.save(capture(savedSlot)) } answers {
+            lastSaved = savedSlot.captured
+            savedSlot.captured
         }
 
-        service = SurveyService(writer)
+        service = SurveyService(repository)
         service.userStates.clear()
         service.drafts.clear()
     }
@@ -61,4 +64,3 @@ abstract class SurveyServiceTestBase {
         return update
     }
 }
-

@@ -14,11 +14,13 @@ import telegram.enums.UserStates
 import telegram.model.BotReply
 import telegram.model.MutableBotReply
 import telegram.model.SurveyDraft
-import telegram.persistence.SurveySubmissionWriter
+import telegram.persistence.SurveySubmission
+import telegram.persistence.SurveySubmissionRepository
+import java.time.Instant
 
 @Singleton
 class SurveyService(
-    private val submissionWriter: SurveySubmissionWriter,
+    private val repository: SurveySubmissionRepository,
 ) {
     val userStates: MutableMap<Long, UserStates> = ConcurrentHashMap()
     val drafts: MutableMap<Long, SurveyDraft> = ConcurrentHashMap()
@@ -49,7 +51,16 @@ class SurveyService(
 
         // 2) Ввод по шагам (состояниям): для названия/назначения сохраняем исходный регистр.
         if (handleStatesCommands(rawText, chatId, userStates, drafts, toUser) { id, completed ->
-                submissionWriter.write(id, completed)
+                repository.save(
+                    SurveySubmission(
+                        id = null,
+                        chatId = id,
+                        phone = completed.phone ?: "",
+                        projectName = completed.projectName ?: "",
+                        purpose = completed.purpose ?: "",
+                        createdAt = Instant.now(),
+                    )
+                )
             }
         ) {
             return toUser.toImmutable()
