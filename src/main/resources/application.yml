@@ -1,5 +1,6 @@
-telegram:
+﻿telegram:
   token: ${TELEGRAM_TOKEN}
+  register-commands: ${TELEGRAM_REGISTER_COMMANDS:true}
 
 micronaut:
   server:

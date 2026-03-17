@@ -1,4 +1,4 @@
-package telegram.commands
+﻿package telegram.commands
 
 import org.telegram.telegrambots.meta.api.objects.Message
 import telegram.enums.Answers
@@ -20,6 +20,18 @@ fun handleGlobalCommands(
             userStates[chatId] = UserStates.WAITING_FOR_PHONE
             drafts[chatId] = SurveyDraft()
             response.text = Answers.WELCOME.text
+            return true
+        }
+
+        Commands.HELP.text -> {
+            response.text = Answers.HELP.text
+            return true
+        }
+
+        Commands.CANCEL.text -> {
+            userStates.remove(chatId)
+            drafts.remove(chatId)
+            response.text = Answers.CANCELLED.text
             return true
         }
 
