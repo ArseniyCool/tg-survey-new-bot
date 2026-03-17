@@ -103,7 +103,33 @@ class SurveyServiceTest {
     }
 
     @Test
-    fun `project name should ask for purpose`() {
+    fun `emoji in project name should be rejected`() {
+        service.handle(mockTelegramUpdate(Commands.START.text))
+        service.handle(mockTelegramUpdate(Examples.CORRECT_NUMBER.text))
+
+        val response = service.handle(mockTelegramUpdate("My project 🚀"))
+        assertEquals(Answers.EMOJI_NOT_ALLOWED.text, response.text)
+        assertEquals(UserStates.WAITING_FOR_PROJECT_NAME, service.userStates[1L])
+
+        val draft = service.drafts[1L]
+        assertNotNull(draft)
+        assertEquals(null, draft!!.projectName)
+    }
+
+    @Test
+    fun `emoji in purpose should be rejected`() {
+        service.handle(mockTelegramUpdate(Commands.START.text))
+        service.handle(mockTelegramUpdate(Examples.CORRECT_NUMBER.text))
+        service.handle(mockTelegramUpdate(Examples.PROJECT.text))
+
+        val response = service.handle(mockTelegramUpdate("Для 🚀"))
+        assertEquals(Answers.EMOJI_NOT_ALLOWED.text, response.text)
+        assertEquals(UserStates.WAITING_FOR_PURPOSE, service.userStates[1L])
+
+        val draft = service.drafts[1L]
+        assertNotNull(draft)
+        assertEquals(null, draft!!.purpose)
+    }fun `project name should ask for purpose`() {
         service.handle(mockTelegramUpdate(Commands.START.text))
         service.handle(mockTelegramUpdate(Examples.CORRECT_NUMBER.text))
 
@@ -267,4 +293,6 @@ class SurveyServiceTest {
         assertEquals(Answers.DONT_UNDERSTAND.text, fallbackResponse.text)
     }
 }
+
+
 

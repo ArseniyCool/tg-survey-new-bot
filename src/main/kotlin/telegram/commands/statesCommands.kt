@@ -6,6 +6,7 @@ import telegram.enums.UserStates
 import telegram.format.escapeHtml
 import telegram.model.MutableBotReply
 import telegram.model.SurveyDraft
+import telegram.validation.containsEmoji
 import telegram.validation.normalizePhoneNumber
 import kotlin.collections.set
 
@@ -45,6 +46,11 @@ fun handleStatesCommands(
 
         UserStates.WAITING_FOR_PROJECT_NAME -> {
             val projectName = fromUserMessage.trim()
+            if (containsEmoji(projectName)) {
+                toUserMessage.text = Answers.EMOJI_NOT_ALLOWED.text
+                return true
+            }
+
             val draft = drafts[chatId] ?: SurveyDraft()
             drafts[chatId] = draft.copy(projectName = projectName)
 
@@ -59,6 +65,11 @@ fun handleStatesCommands(
 
         UserStates.WAITING_FOR_PURPOSE -> {
             val purpose = fromUserMessage.trim()
+            if (containsEmoji(purpose)) {
+                toUserMessage.text = Answers.EMOJI_NOT_ALLOWED.text
+                return true
+            }
+
             val draft = drafts[chatId] ?: SurveyDraft()
             val completed = draft.copy(purpose = purpose)
 
@@ -79,8 +90,7 @@ fun handleStatesCommands(
                     "📱 <b>Телефон:</b> <code>$phone</code>\n" +
                     "📦 <b>Проект:</b> <code>$project</code>\n" +
                     "🎯 <b>Назначение:</b> <code>$purposeEscaped</code>\n\n" +
-                    "🔁 Хотите заполнить заново?\n" +
-                    "/start\n" +
+                    "🔁 Заполнить заново? /start\n" +
                     "⬅️ Шаг назад: /cancel"
             return true
         }
@@ -88,4 +98,3 @@ fun handleStatesCommands(
         UserStates.COMPLETED -> return false
     }
 }
-
