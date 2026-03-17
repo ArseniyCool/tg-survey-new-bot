@@ -79,8 +79,12 @@ class SurveyServiceTest {
     fun `phone can be shared as contact`() {
         service.handle(mockTelegramUpdate(Commands.START.text))
 
-        val phoneResponse = service.handle(mockTelegramContactUpdate(Examples.CORRECT_NUMBER.text))
+        val phoneResponse = service.handle(mockTelegramContactUpdate("+7 (917) 396-79-03"))
         assertEquals(Answers.NUMBER_SAVED.text, phoneResponse.text)
+
+        val draft = service.drafts[1L]
+        assertNotNull(draft)
+        assertEquals("89173967903", draft!!.phone)
     }
 
     @Test
@@ -190,3 +194,4 @@ class SurveyServiceTest {
         assertEquals(Answers.DONT_UNDERSTAND.text, fallbackResponse.text)
     }
 }
+

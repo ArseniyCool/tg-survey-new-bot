@@ -5,7 +5,7 @@ import telegram.enums.Answers
 import telegram.enums.UserStates
 import telegram.model.MutableBotReply
 import telegram.model.SurveyDraft
-import telegram.validation.isValidPhoneNumber
+import telegram.validation.normalizePhoneNumber
 import kotlin.collections.set
 
 fun handleStatesCommands(
@@ -21,14 +21,14 @@ fun handleStatesCommands(
 
     when (state) {
         UserStates.WAITING_FOR_PHONE -> {
-            val phone = fromUserMessage.trim()
-            if (!isValidPhoneNumber(phone)) {
+            val normalizedPhone = normalizePhoneNumber(fromUserMessage.trim())
+            if (normalizedPhone == null) {
                 toUserMessage.text = Answers.INCORRECT_NUMBER.text
                 return true
             }
 
             val draft = drafts[chatId] ?: SurveyDraft()
-            drafts[chatId] = draft.copy(phone = phone)
+            drafts[chatId] = draft.copy(phone = normalizedPhone)
 
             // Hide the "share contact" keyboard after we got the phone.
             toUserMessage.replyMarkup = ReplyKeyboardRemove(true)
