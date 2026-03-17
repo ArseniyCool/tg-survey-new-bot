@@ -1,8 +1,9 @@
-package telegram.commands
+﻿package telegram.commands
 
-import org.telegram.telegrambots.meta.api.objects.Message
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardRemove
 import telegram.enums.Answers
 import telegram.enums.UserStates
+import telegram.model.MutableBotReply
 import telegram.model.SurveyDraft
 import telegram.validation.isValidPhoneNumber
 import kotlin.collections.set
@@ -12,7 +13,7 @@ fun handleStatesCommands(
     chatId: Long,
     userStates: MutableMap<Long, UserStates>,
     drafts: MutableMap<Long, SurveyDraft>,
-    toUserMessage: Message,
+    toUserMessage: MutableBotReply,
     onCompleted: (Long, SurveyDraft) -> Unit,
 ): Boolean {
 
@@ -28,6 +29,9 @@ fun handleStatesCommands(
 
             val draft = drafts[chatId] ?: SurveyDraft()
             drafts[chatId] = draft.copy(phone = phone)
+
+            // Hide the "share contact" keyboard after we got the phone.
+            toUserMessage.replyMarkup = ReplyKeyboardRemove(true)
 
             toUserMessage.text = Answers.NUMBER_SAVED.text
             userStates[chatId] = UserStates.WAITING_FOR_PROJECT_NAME

@@ -29,7 +29,11 @@ class TelegramWebhookController(
             if (chatId == null || text.isNullOrBlank()) {
                 HttpResponse.ok()
             } else {
-                HttpResponse.ok(SendMessage(chatId.toString(), text))
+                HttpResponse.ok(
+                    SendMessage(chatId.toString(), text).apply {
+                        replyMarkup = reply.replyMarkup
+                    }
+                )
             }
         } catch (e: Exception) {
             // Never return 500 to Telegram, otherwise it will keep retrying the same update.

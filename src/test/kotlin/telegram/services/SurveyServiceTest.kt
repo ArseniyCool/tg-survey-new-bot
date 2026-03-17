@@ -1,4 +1,4 @@
-package telegram.services
+﻿package telegram.services
 
 import io.mockk.every
 import io.mockk.mockk
@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.telegram.telegrambots.meta.api.objects.Contact
 import org.telegram.telegrambots.meta.api.objects.Message
 import org.telegram.telegrambots.meta.api.objects.Update
 import telegram.enums.Answers
@@ -38,6 +39,21 @@ class SurveyServiceTest {
         val message = mockk<Message>()
 
         every { message.text } returns text
+        every { message.contact } returns null
+        every { message.chatId } returns 1L
+        every { update.message } returns message
+
+        return update
+    }
+
+    private fun mockTelegramContactUpdate(phone: String): Update {
+        val update = mockk<Update>()
+        val message = mockk<Message>()
+        val contact = mockk<Contact>()
+
+        every { contact.phoneNumber } returns phone
+        every { message.text } returns null
+        every { message.contact } returns contact
         every { message.chatId } returns 1L
         every { update.message } returns message
 
@@ -48,6 +64,7 @@ class SurveyServiceTest {
     fun `start command should return hello`() {
         val startResponse = service.handle(mockTelegramUpdate(Commands.START.text))
         assertEquals(Answers.WELCOME.text, startResponse.text)
+        assertNotNull(startResponse.replyMarkup)
     }
 
     @Test
@@ -55,6 +72,14 @@ class SurveyServiceTest {
         service.handle(mockTelegramUpdate(Commands.START.text))
 
         val phoneResponse = service.handle(mockTelegramUpdate(Examples.CORRECT_NUMBER.text))
+        assertEquals(Answers.NUMBER_SAVED.text, phoneResponse.text)
+    }
+
+    @Test
+    fun `phone can be shared as contact`() {
+        service.handle(mockTelegramUpdate(Commands.START.text))
+
+        val phoneResponse = service.handle(mockTelegramContactUpdate(Examples.CORRECT_NUMBER.text))
         assertEquals(Answers.NUMBER_SAVED.text, phoneResponse.text)
     }
 
