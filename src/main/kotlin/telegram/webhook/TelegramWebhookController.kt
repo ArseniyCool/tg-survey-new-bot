@@ -6,6 +6,7 @@ import io.micronaut.http.annotation.Body
 import io.micronaut.http.annotation.Controller
 import io.micronaut.http.annotation.Post
 import org.slf4j.LoggerFactory
+import org.telegram.telegrambots.meta.api.methods.ParseMode
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage
 import org.telegram.telegrambots.meta.api.objects.Update
 import telegram.services.SurveyService
@@ -31,6 +32,7 @@ class TelegramWebhookController(
             } else {
                 HttpResponse.ok(
                     SendMessage(chatId.toString(), text).apply {
+                        parseMode = ParseMode.HTML
                         replyMarkup = reply.replyMarkup
                     }
                 )
@@ -42,7 +44,11 @@ class TelegramWebhookController(
             if (chatId == null) {
                 HttpResponse.ok()
             } else {
-                HttpResponse.ok(SendMessage(chatId.toString(), "Ошибка сохранения анкеты. Попробуйте позже."))
+                HttpResponse.ok(
+                    SendMessage(chatId.toString(), "⚠️ Произошла ошибка. Попробуйте позже.").apply {
+                        parseMode = ParseMode.HTML
+                    }
+                )
             }
         }
     }
