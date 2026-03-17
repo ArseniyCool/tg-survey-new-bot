@@ -62,11 +62,13 @@ fun handleStatesCommands(
             val purposeEscaped = escapeHtml(completed.purpose ?: "")
 
             toUserMessage.text =
-                "🎉 <b>Готово!</b> Анкета сохранена.\n\n" +
-                    "<b>Телефон:</b> $phone\n" +
-                    "<b>Проект:</b> $project\n" +
-                    "<b>Назначение:</b> $purposeEscaped\n\n" +
-                    "Если хотите пройти опрос заново: нажмите /cancel, затем /start."
+                "🧾 <b>Квитанция</b>\n" +
+                    "✅ Анкета сохранена.\n\n" +
+                    "📱 <b>Телефон:</b> $phone\n" +
+                    "📦 <b>Проект:</b> $project\n" +
+                    "🎯 <b>Назначение:</b> $purposeEscaped\n\n" +
+                    "🔁 Хотите заполнить заново? Нажмите /start\n" +
+                    "⬅️ Если ошиблись во время заполнения: /cancel (шаг назад)"
 
             userStates.remove(chatId)
             drafts.remove(chatId)

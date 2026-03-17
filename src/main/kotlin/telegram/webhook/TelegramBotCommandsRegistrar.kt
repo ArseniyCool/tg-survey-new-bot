@@ -30,9 +30,9 @@ class TelegramBotCommandsRegistrar(
         val commandsJson = """
             {
               "commands": [
-                {"command": "start",  "description": "Начать опрос"},
+                {"command": "start",  "description": "Начать / перезапустить"},
                 {"command": "help",   "description": "Показать справку"},
-                {"command": "cancel", "description": "Отменить опрос"},
+                {"command": "cancel", "description": "Шаг назад"},
                 {"command": "ping",   "description": "Проверка связи"}
               ]
             }

@@ -12,6 +12,7 @@ import org.telegram.telegrambots.meta.api.objects.Update
 import telegram.enums.Answers
 import telegram.enums.Commands
 import telegram.enums.Examples
+import telegram.enums.UserStates
 import telegram.model.SurveyDraft
 import telegram.persistence.SurveySubmissionWriter
 
@@ -102,6 +103,38 @@ class SurveyServiceTest {
 
         val projectResponse = service.handle(mockTelegramUpdate(Examples.PROJECT.text))
         assertEquals(Answers.PROJECT_SAVED.text, projectResponse.text)
+    }
+
+    @Test
+    fun `cancel from project step should go back to phone`() {
+        service.handle(mockTelegramUpdate(Commands.START.text))
+        service.handle(mockTelegramUpdate(Examples.CORRECT_NUMBER.text))
+
+        val cancelResponse = service.handle(mockTelegramUpdate(Commands.CANCEL.text))
+        val txt = cancelResponse.text ?: ""
+        assert(txt.contains("телефон"))
+
+        assertEquals(UserStates.WAITING_FOR_PHONE, service.userStates[1L])
+        val draft = service.drafts[1L]
+        assertNotNull(draft)
+        assertEquals(null, draft!!.phone)
+    }
+
+    @Test
+    fun `cancel from purpose step should go back to project`() {
+        service.handle(mockTelegramUpdate(Commands.START.text))
+        service.handle(mockTelegramUpdate(Examples.CORRECT_NUMBER.text))
+        service.handle(mockTelegramUpdate(Examples.PROJECT.text))
+
+        val cancelResponse = service.handle(mockTelegramUpdate(Commands.CANCEL.text))
+        val txt = cancelResponse.text ?: ""
+        assert(txt.contains("название проекта"))
+
+        assertEquals(UserStates.WAITING_FOR_PROJECT_NAME, service.userStates[1L])
+        val draft = service.drafts[1L]
+        assertNotNull(draft)
+        assertEquals(null, draft!!.projectName)
+        assertEquals(Examples.CORRECT_NUMBER.text, draft.phone)
     }
 
     @Test

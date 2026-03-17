@@ -35,6 +35,7 @@ fun handleGlobalCommands(
 
     when (text) {
         Commands.START.text -> {
+            // /start always restarts the flow from the beginning.
             userStates[chatId] = UserStates.WAITING_FOR_PHONE
             drafts[chatId] = SurveyDraft()
             response.text = Answers.WELCOME.text
@@ -48,10 +49,41 @@ fun handleGlobalCommands(
         }
 
         Commands.CANCEL.text -> {
-            userStates.remove(chatId)
-            drafts.remove(chatId)
-            response.text = Answers.CANCELLED.text
-            response.replyMarkup = ReplyKeyboardRemove(true)
+            // /cancel = step back (undo previous answer)
+            val state = userStates[chatId]
+            when (state) {
+                null -> {
+                    response.text = "ℹ️ Сейчас нечего отменять. Нажмите /start, чтобы начать опрос."
+                    response.replyMarkup = ReplyKeyboardRemove(true)
+                }
+
+                UserStates.WAITING_FOR_PHONE -> {
+                    // First step: nothing to undo, just remind.
+                    response.text = "ℹ️ Вы на первом шаге. Отправьте номер телефона или нажмите \"Отправить контакт\"."
+                    response.replyMarkup = phoneKeyboard()
+                }
+
+                UserStates.WAITING_FOR_PROJECT_NAME -> {
+                    // Undo phone, go back to phone step.
+                    val draft = drafts[chatId] ?: SurveyDraft()
+                    drafts[chatId] = draft.copy(phone = null)
+                    userStates[chatId] = UserStates.WAITING_FOR_PHONE
+
+                    response.text = "⬅️ Ок, вернулись к шагу <b>телефон</b>. Отправьте номер еще раз."
+                    response.replyMarkup = phoneKeyboard()
+                }
+
+                UserStates.WAITING_FOR_PURPOSE -> {
+                    // Undo project name, go back to project step.
+                    val draft = drafts[chatId] ?: SurveyDraft()
+                    drafts[chatId] = draft.copy(projectName = null)
+                    userStates[chatId] = UserStates.WAITING_FOR_PROJECT_NAME
+
+                    response.text = "⬅️ Ок, вернулись к шагу <b>название проекта</b>. Введите название проекта."
+                    response.replyMarkup = ReplyKeyboardRemove(true)
+                }
+            }
+
             return true
         }
 
