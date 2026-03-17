@@ -2,7 +2,7 @@
 
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardRemove
 import telegram.enums.Answers
-import telegram.enums.InputLimits
+import telegram.enums.InputLimit
 import telegram.enums.UserStates
 import telegram.format.escapeHtml
 import telegram.model.MutableBotReply
@@ -49,7 +49,7 @@ fun handleStatesCommands(
         UserStates.WAITING_FOR_PROJECT_NAME -> {
             val projectName = fromUserMessage.trim()
 
-            if (!isLengthInRange(projectName, InputLimits.PROJECT_NAME_MIN, InputLimits.PROJECT_NAME_MAX)) {
+            if (!isLengthInRange(projectName, InputLimit.PROJECT_NAME.min, InputLimit.PROJECT_NAME.max)) {
                 toUserMessage.text = Answers.PROJECT_NAME_LENGTH_INVALID.text
                 return true
             }
@@ -74,7 +74,7 @@ fun handleStatesCommands(
         UserStates.WAITING_FOR_PURPOSE -> {
             val purpose = fromUserMessage.trim()
 
-            if (!isLengthInRange(purpose, InputLimits.PURPOSE_MIN, InputLimits.PURPOSE_MAX)) {
+            if (!isLengthInRange(purpose, InputLimit.PURPOSE.min, InputLimit.PURPOSE.max)) {
                 toUserMessage.text = Answers.PURPOSE_LENGTH_INVALID.text
                 return true
             }
@@ -112,3 +112,4 @@ fun handleStatesCommands(
         UserStates.COMPLETED -> return false
     }
 }
+
