@@ -129,6 +129,36 @@ class SurveyServiceTest {
         val draft = service.drafts[1L]
         assertNotNull(draft)
         assertEquals(null, draft!!.purpose)
+    }
+    @Test
+    fun `project name length should be validated`() {
+        service.handle(mockTelegramUpdate(Commands.START.text))
+        service.handle(mockTelegramUpdate(Examples.CORRECT_NUMBER.text))
+
+        val tooShort = service.handle(mockTelegramUpdate("Abcd"))
+        assertEquals(Answers.PROJECT_NAME_LENGTH_INVALID.text, tooShort.text)
+        assertEquals(UserStates.WAITING_FOR_PROJECT_NAME, service.userStates[1L])
+
+        val tooLongName = "A".repeat(31)
+        val tooLong = service.handle(mockTelegramUpdate(tooLongName))
+        assertEquals(Answers.PROJECT_NAME_LENGTH_INVALID.text, tooLong.text)
+        assertEquals(UserStates.WAITING_FOR_PROJECT_NAME, service.userStates[1L])
+    }
+
+    @Test
+    fun `purpose length should be validated`() {
+        service.handle(mockTelegramUpdate(Commands.START.text))
+        service.handle(mockTelegramUpdate(Examples.CORRECT_NUMBER.text))
+        service.handle(mockTelegramUpdate(Examples.PROJECT.text))
+
+        val tooShort = service.handle(mockTelegramUpdate("Abcd"))
+        assertEquals(Answers.PURPOSE_LENGTH_INVALID.text, tooShort.text)
+        assertEquals(UserStates.WAITING_FOR_PURPOSE, service.userStates[1L])
+
+        val tooLongPurpose = "A".repeat(101)
+        val tooLong = service.handle(mockTelegramUpdate(tooLongPurpose))
+        assertEquals(Answers.PURPOSE_LENGTH_INVALID.text, tooLong.text)
+        assertEquals(UserStates.WAITING_FOR_PURPOSE, service.userStates[1L])
     }fun `project name should ask for purpose`() {
         service.handle(mockTelegramUpdate(Commands.START.text))
         service.handle(mockTelegramUpdate(Examples.CORRECT_NUMBER.text))
@@ -293,6 +323,7 @@ class SurveyServiceTest {
         assertEquals(Answers.DONT_UNDERSTAND.text, fallbackResponse.text)
     }
 }
+
 
 
 

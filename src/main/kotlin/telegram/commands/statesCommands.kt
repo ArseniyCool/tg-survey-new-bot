@@ -2,11 +2,13 @@
 
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardRemove
 import telegram.enums.Answers
+import telegram.enums.InputLimits
 import telegram.enums.UserStates
 import telegram.format.escapeHtml
 import telegram.model.MutableBotReply
 import telegram.model.SurveyDraft
 import telegram.validation.containsEmoji
+import telegram.validation.isLengthInRange
 import telegram.validation.normalizePhoneNumber
 import kotlin.collections.set
 
@@ -46,6 +48,12 @@ fun handleStatesCommands(
 
         UserStates.WAITING_FOR_PROJECT_NAME -> {
             val projectName = fromUserMessage.trim()
+
+            if (!isLengthInRange(projectName, InputLimits.PROJECT_NAME_MIN, InputLimits.PROJECT_NAME_MAX)) {
+                toUserMessage.text = Answers.PROJECT_NAME_LENGTH_INVALID.text
+                return true
+            }
+
             if (containsEmoji(projectName)) {
                 toUserMessage.text = Answers.EMOJI_NOT_ALLOWED.text
                 return true
@@ -65,6 +73,12 @@ fun handleStatesCommands(
 
         UserStates.WAITING_FOR_PURPOSE -> {
             val purpose = fromUserMessage.trim()
+
+            if (!isLengthInRange(purpose, InputLimits.PURPOSE_MIN, InputLimits.PURPOSE_MAX)) {
+                toUserMessage.text = Answers.PURPOSE_LENGTH_INVALID.text
+                return true
+            }
+
             if (containsEmoji(purpose)) {
                 toUserMessage.text = Answers.EMOJI_NOT_ALLOWED.text
                 return true

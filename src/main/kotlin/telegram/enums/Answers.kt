@@ -27,4 +27,6 @@ enum class Answers(val text: String) {
     ),
 
     EMOJI_NOT_ALLOWED("❌ Эмодзи в тексте не допускаются.\n\nВведите текст без эмодзи."),
+    PROJECT_NAME_LENGTH_INVALID("❌ Название проекта должно быть от <b>5</b> до <b>30</b> символов."),
+    PURPOSE_LENGTH_INVALID("❌ Назначение должно быть от <b>5</b> до <b>100</b> символов."),
 }
