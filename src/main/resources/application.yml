@@ -1,9 +1,6 @@
 ﻿telegram:
   token: ${TELEGRAM_TOKEN}
   register-commands: ${TELEGRAM_REGISTER_COMMANDS:true}
-  set-profile-photo: ${TELEGRAM_SET_PROFILE_PHOTO:false}
-  profile-photo-path: ${TELEGRAM_PROFILE_PHOTO_PATH:}
-  remove-profile-photo: ${TELEGRAM_REMOVE_PROFILE_PHOTO:false}
 
 micronaut:
   server:
