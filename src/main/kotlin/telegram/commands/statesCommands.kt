@@ -34,7 +34,11 @@ fun handleStatesCommands(
             // Hide the "share contact" keyboard after we got the phone.
             toUserMessage.replyMarkup = ReplyKeyboardRemove(true)
 
-            toUserMessage.text = Answers.NUMBER_SAVED.text
+            val phoneEscaped = escapeHtml(normalizedPhone)
+            toUserMessage.text =
+                "✅ <b>Ваш телефон</b> <code>$phoneEscaped</code> сохранен.\n\n" +
+                    Answers.NUMBER_SAVED.text
+
             userStates[chatId] = UserStates.WAITING_FOR_PROJECT_NAME
             return true
         }
@@ -44,7 +48,11 @@ fun handleStatesCommands(
             val draft = drafts[chatId] ?: SurveyDraft()
             drafts[chatId] = draft.copy(projectName = projectName)
 
-            toUserMessage.text = Answers.PROJECT_SAVED.text
+            val projectEscaped = escapeHtml(projectName)
+            toUserMessage.text =
+                "✅ <b>Ваш проект</b> <code>$projectEscaped</code> сохранен.\n\n" +
+                    Answers.PROJECT_SAVED.text
+
             userStates[chatId] = UserStates.WAITING_FOR_PURPOSE
             return true
         }
@@ -68,9 +76,9 @@ fun handleStatesCommands(
             toUserMessage.text =
                 "🧾 <b>Квитанция</b>\n" +
                     "✅ Анкета сохранена.\n\n" +
-                    "📱 <b>Телефон:</b> $phone\n" +
-                    "📦 <b>Проект:</b> $project\n" +
-                    "🎯 <b>Назначение:</b> $purposeEscaped\n\n" +
+                    "📱 <b>Телефон:</b> <code>$phone</code>\n" +
+                    "📦 <b>Проект:</b> <code>$project</code>\n" +
+                    "🎯 <b>Назначение:</b> <code>$purposeEscaped</code>\n\n" +
                     "🔁 Хотите заполнить заново?\n" +
                     "/start\n" +
                     "⬅️ Шаг назад: /cancel"

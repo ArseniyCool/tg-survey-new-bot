@@ -16,7 +16,13 @@ enum class Answers(val text: String) {
 
     PONG("🏓 Понг!"),
     DONT_UNDERSTAND("🤔 Не понял. Напишите /start, чтобы начать, или /help для списка команд."),
-    NUMBER_SAVED("✅ <b>Телефон сохранен</b>!\n\nВведите <b>название проекта</b>."),
-    INCORRECT_NUMBER("❌ Номер выглядит неверно.\n\nПришлите номер в формате <b>8XXXXXXXXXX</b> или нажмите <b>\"Отправить контакт\"</b>."),
-    PROJECT_SAVED("✅ <b>Название проекта сохранено</b>!\n\nОпишите <b>назначение</b> проекта."),
+
+    // Prompts for the next step (the handlers prepend a dynamic "saved" line with <code>user input</code>).
+    NUMBER_SAVED("Введите <b>название проекта</b>."),
+    PROJECT_SAVED("Опишите <b>назначение</b> проекта."),
+
+    INCORRECT_NUMBER(
+        "❌ Номер выглядит неверно.\n\n" +
+            "Пришлите номер в формате <b>8XXXXXXXXXX</b> или нажмите <b>\"Отправить контакт\"</b>."
+    ),
 }
