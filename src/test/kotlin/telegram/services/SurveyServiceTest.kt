@@ -121,6 +121,25 @@ class SurveyServiceTest {
     }
 
     @Test
+    fun `cancel after completed should allow changing purpose`() {
+        service.handle(mockTelegramUpdate(Commands.START.text))
+        service.handle(mockTelegramUpdate(Examples.CORRECT_NUMBER.text))
+        service.handle(mockTelegramUpdate(Examples.PROJECT.text))
+        service.handle(mockTelegramUpdate(Examples.PURPOSE.text))
+
+        assertEquals(UserStates.COMPLETED, service.userStates[1L])
+
+        val cancelResponse = service.handle(mockTelegramUpdate(Commands.CANCEL.text))
+        val txt = cancelResponse.text ?: ""
+        assert(txt.contains("назначение"))
+
+        assertEquals(UserStates.WAITING_FOR_PURPOSE, service.userStates[1L])
+        val draft = service.drafts[1L]
+        assertNotNull(draft)
+        assertEquals(null, draft!!.purpose)
+    }
+
+    @Test
     fun `cancel from purpose step should go back to project`() {
         service.handle(mockTelegramUpdate(Commands.START.text))
         service.handle(mockTelegramUpdate(Examples.CORRECT_NUMBER.text))
@@ -136,7 +155,6 @@ class SurveyServiceTest {
         assertEquals(null, draft!!.projectName)
         assertEquals(Examples.CORRECT_NUMBER.text, draft.phone)
     }
-
     @Test
     fun `project and purpose should preserve original casing`() {
         service.handle(mockTelegramUpdate("/StArT"))
@@ -152,10 +170,11 @@ class SurveyServiceTest {
         val purposeInput = "For Internal Automation"
         service.handle(mockTelegramUpdate(purposeInput))
 
-        // After completion draft is removed
         val draftAfterPurpose = service.drafts[1L]
-        assertEquals(null, draftAfterPurpose)
-    }
+        assertNotNull(draftAfterPurpose)
+        assertEquals(purposeInput, draftAfterPurpose!!.purpose)
+        assertEquals(UserStates.COMPLETED, service.userStates[1L])
+}
 
     @Test
     fun `purpose should finish survey and persist submission`() {
@@ -166,7 +185,7 @@ class SurveyServiceTest {
         val purposeResponse = service.handle(mockTelegramUpdate(Examples.PURPOSE.text))
 
         val txt = purposeResponse.text ?: ""
-        // Summary should include saved fields and a hint about /cancel
+        // Summary should include saved fields and commands
         assert(txt.contains("Телефон:"))
         assert(txt.contains(Examples.CORRECT_NUMBER.text))
         assert(txt.contains("Проект:"))
@@ -174,6 +193,7 @@ class SurveyServiceTest {
         assert(txt.contains("Назначение:"))
         assert(txt.contains(Examples.PURPOSE.text))
         assert(txt.contains("/cancel"))
+        assert(txt.contains("/start"))
 
         val saved = lastSaved
         assertNotNull(saved)
@@ -232,7 +252,7 @@ class SurveyServiceTest {
         val purposeResponse = service.handle(mockTelegramUpdate(Examples.PURPOSE.text))
 
         val txt = purposeResponse.text ?: ""
-        // Summary should include saved fields and a hint about /cancel
+        // Summary should include saved fields and commands
         assert(txt.contains("Телефон:"))
         assert(txt.contains(Examples.CORRECT_NUMBER.text))
         assert(txt.contains("Проект:"))
@@ -245,3 +265,14 @@ class SurveyServiceTest {
         assertEquals(Answers.DONT_UNDERSTAND.text, fallbackResponse.text)
     }
 }
+
+
+
+
+
+
+
+
+
+
+

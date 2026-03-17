@@ -82,6 +82,16 @@ fun handleGlobalCommands(
                     response.text = "⬅️ Ок, вернулись к шагу <b>название проекта</b>. Введите название проекта."
                     response.replyMarkup = ReplyKeyboardRemove(true)
                 }
+
+                UserStates.COMPLETED -> {
+                    // Undo purpose, go back to purpose step.
+                    val draft = drafts[chatId] ?: SurveyDraft()
+                    drafts[chatId] = draft.copy(purpose = null)
+                    userStates[chatId] = UserStates.WAITING_FOR_PURPOSE
+
+                    response.text = "⬅️ Ок, вернулись к шагу <b>назначение</b>. Введите назначение проекта."
+                    response.replyMarkup = ReplyKeyboardRemove(true)
+                }
             }
 
             return true

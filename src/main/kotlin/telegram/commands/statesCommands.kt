@@ -54,8 +54,12 @@ fun handleStatesCommands(
             val draft = drafts[chatId] ?: SurveyDraft()
             val completed = draft.copy(purpose = purpose)
 
-            // Persist before clearing in-memory state.
+            // Persist before switching to COMPLETED.
             onCompleted(chatId, completed)
+
+            // Keep draft/state so user can go back and adjust the last answer via /cancel.
+            drafts[chatId] = completed
+            userStates[chatId] = UserStates.COMPLETED
 
             val phone = escapeHtml(completed.phone ?: "")
             val project = escapeHtml(completed.projectName ?: "")
@@ -67,12 +71,13 @@ fun handleStatesCommands(
                     "📱 <b>Телефон:</b> $phone\n" +
                     "📦 <b>Проект:</b> $project\n" +
                     "🎯 <b>Назначение:</b> $purposeEscaped\n\n" +
-                    "🔁 Хотите заполнить заново? Нажмите /start\n" +
-                    "⬅️ Если ошиблись во время заполнения: /cancel (шаг назад)"
+                    "🔁 Хотите заполнить заново?\n" +
+                    "/start\n" +
+                    "⬅️ Шаг назад: /cancel"
 
-            userStates.remove(chatId)
-            drafts.remove(chatId)
             return true
         }
+
+        UserStates.COMPLETED -> return false
     }
 }
