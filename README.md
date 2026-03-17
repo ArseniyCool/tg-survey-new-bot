@@ -101,4 +101,21 @@ $env:PGCLIENTENCODING="UTF8"
 
 - Никогда не коммитьте токен в репозиторий.
 - Если токен случайно попал в чат/репозиторий, перевыпустите его через BotFather.
+## 7) Иконка бота (profile photo)
+
+Иконку (аватар) бота можно установить автоматически при старте приложения.
+
+1. Подготовьте картинку `.jpg` или `.png`.
+2. В Run Configuration добавьте Environment variables:
+   - `TELEGRAM_SET_PROFILE_PHOTO=true`
+   - `TELEGRAM_PROFILE_PHOTO_PATH=C:\\path\\to\\bot.jpg`
+
+При старте приложение вызовет Telegram Bot API `setMyProfilePhoto`.
+
+Отключить (по умолчанию выключено):
+- `TELEGRAM_SET_PROFILE_PHOTO=false`
+
+Снять иконку (удалить текущую):
+- `TELEGRAM_SET_PROFILE_PHOTO=true`
+- `TELEGRAM_REMOVE_PROFILE_PHOTO=true`
 
