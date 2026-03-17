@@ -195,7 +195,7 @@ class SurveyServiceTest {
         val purposeResponse = service.handle(mockTelegramUpdate(Examples.PURPOSE.text))
 
         val txt = purposeResponse.text ?: ""
-        assert(txt.contains("Квитанция"))
+        assert(txt.contains("Спасибо за заполнение анкеты"))
         assert(txt.contains("Телефон:"))
         assert(txt.contains(Examples.CORRECT_NUMBER.text))
         assert(txt.contains("Проект:"))
@@ -261,9 +261,10 @@ class SurveyServiceTest {
         assert((projectResponse.text ?: "").contains(Examples.PROJECT.text))
 
         val purposeResponse = service.handle(mockTelegramUpdate(Examples.PURPOSE.text))
-        assert((purposeResponse.text ?: "").contains("Квитанция"))
+        assert((purposeResponse.text ?: "").contains("Спасибо за заполнение анкеты"))
 
         val fallbackResponse = service.handle(mockTelegramUpdate(Examples.SOMETHING.text))
         assertEquals(Answers.DONT_UNDERSTAND.text, fallbackResponse.text)
     }
 }
+
