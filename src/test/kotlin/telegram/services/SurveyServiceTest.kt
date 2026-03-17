@@ -131,7 +131,16 @@ class SurveyServiceTest {
         service.handle(mockTelegramUpdate(Examples.PROJECT.text))
 
         val purposeResponse = service.handle(mockTelegramUpdate(Examples.PURPOSE.text))
-        assertEquals(Answers.PURPOSE_SAVED.text, purposeResponse.text)
+
+        val txt = purposeResponse.text ?: ""
+        // Summary should include saved fields and a hint about /cancel
+        assert(txt.contains("Телефон:"))
+        assert(txt.contains(Examples.CORRECT_NUMBER.text))
+        assert(txt.contains("Проект:"))
+        assert(txt.contains(Examples.PROJECT.text))
+        assert(txt.contains("Назначение:"))
+        assert(txt.contains(Examples.PURPOSE.text))
+        assert(txt.contains("/cancel"))
 
         val saved = lastSaved
         assertNotNull(saved)
@@ -188,10 +197,18 @@ class SurveyServiceTest {
         assertEquals(Answers.PROJECT_SAVED.text, projectResponse.text)
 
         val purposeResponse = service.handle(mockTelegramUpdate(Examples.PURPOSE.text))
-        assertEquals(Answers.PURPOSE_SAVED.text, purposeResponse.text)
+
+        val txt = purposeResponse.text ?: ""
+        // Summary should include saved fields and a hint about /cancel
+        assert(txt.contains("Телефон:"))
+        assert(txt.contains(Examples.CORRECT_NUMBER.text))
+        assert(txt.contains("Проект:"))
+        assert(txt.contains(Examples.PROJECT.text))
+        assert(txt.contains("Назначение:"))
+        assert(txt.contains(Examples.PURPOSE.text))
+        assert(txt.contains("/cancel"))
 
         val fallbackResponse = service.handle(mockTelegramUpdate(Examples.SOMETHING.text))
         assertEquals(Answers.DONT_UNDERSTAND.text, fallbackResponse.text)
     }
 }
-
