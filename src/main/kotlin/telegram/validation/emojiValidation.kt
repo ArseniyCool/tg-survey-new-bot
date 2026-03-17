@@ -1,10 +1,10 @@
 ﻿package telegram.validation
 
 /**
- * Returns true if the string contains emoji-like code points.
+ * Возвращает true, если строка содержит символы, похожие на эмодзи.
  *
- * This is a pragmatic heuristic for Telegram input: it blocks most common emojis,
- * flags and emoji sequences (variation selectors / ZWJ).
+ * Это практичная эвристика для ввода в Telegram: она блокирует большинство популярных эмодзи,
+ * флаги и emoji-последовательности (variation selectors / ZWJ).
  */
 fun containsEmoji(input: String): Boolean {
     var i = 0
@@ -17,21 +17,21 @@ fun containsEmoji(input: String): Boolean {
 }
 
 private fun isEmojiCodePoint(cp: Int): Boolean {
-    // Emoji sequences helpers
-    if (cp == 0xFE0F) return true // VARIATION SELECTOR-16
-    if (cp == 0x200D) return true // ZERO WIDTH JOINER
+    // Служебные символы для emoji-последовательностей
+    if (cp == 0xFE0F) return true // VARIATION SELECTOR-16 (вариационный селектор-16)
+    if (cp == 0x200D) return true // ZERO WIDTH JOINER (соединитель нулевой ширины)
 
-    // Flags
+    // Флаги
     if (cp in 0x1F1E6..0x1F1FF) return true
 
-    // Main emoji blocks (most of modern emoji lives here)
+    // Основные диапазоны эмодзи (большинство современных эмодзи находится здесь)
     if (cp in 0x1F300..0x1FAFF) return true
 
-    // Misc Symbols + Dingbats (many are treated as emoji in Telegram)
+    // Разные символы + Dingbats (многие из них Telegram трактует как эмодзи)
     if (cp in 0x2600..0x26FF) return true
     if (cp in 0x2700..0x27BF) return true
 
-    // Misc Technical (includes emoji like ⌚)
+    // Технические символы (включает эмодзи вроде ⌚)
     if (cp in 0x2300..0x23FF) return true
 
     return false

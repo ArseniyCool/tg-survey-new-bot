@@ -1,7 +1,7 @@
 ﻿package telegram.format
 
 /**
- * Minimal HTML escaping for Telegram ParseMode.HTML.
+ * Минимальное экранирование HTML для Telegram (ParseMode.HTML).
  */
 fun escapeHtml(input: String): String {
     return input

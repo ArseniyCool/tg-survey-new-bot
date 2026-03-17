@@ -24,10 +24,10 @@ class TelegramBotCommandsRegistrar(
     private val log = LoggerFactory.getLogger(TelegramBotCommandsRegistrar::class.java)
 
     override fun onApplicationEvent(event: ApplicationStartupEvent) {
-        // Configure the bot "slash commands" menu in Telegram UI.
-        // Telegram expects commands without leading '/'.
+        // Настраиваем меню "слэш-команд" в интерфейсе Telegram.
+        // Telegram ожидает команды без ведущего '/'.
         if (token.isBlank()) {
-            log.warn("telegram.token is blank; skip commands registration")
+            log.warn("telegram.token пустой; регистрацию меню команд пропускаем")
             return
         }
 
@@ -54,13 +54,13 @@ class TelegramBotCommandsRegistrar(
 
             val response = client.send(request, HttpResponse.BodyHandlers.ofString())
             if (response.statusCode() in 200..299) {
-                log.info("Telegram commands registered successfully")
+                log.info("Меню команд Telegram успешно зарегистрировано")
             } else {
-                log.warn("Failed to register Telegram commands: status={} body={}", response.statusCode(), response.body())
+                log.warn("Не удалось зарегистрировать меню команд Telegram: status={} body={}", response.statusCode(), response.body())
             }
         } catch (e: Exception) {
-            // Do not fail the app startup if Telegram API is unreachable.
-            log.warn("Failed to register Telegram commands (ignored)", e)
+            // Не ломаем старт приложения, если Telegram API недоступен.
+            log.warn("Не удалось зарегистрировать меню команд Telegram (игнорируем)", e)
         }
     }
 }

@@ -39,7 +39,7 @@ fun handleStatesCommands(
             val draft = drafts[chatId] ?: SurveyDraft()
             drafts[chatId] = draft.copy(phone = normalizedPhone)
 
-            // Hide the "share contact" keyboard after we got the phone.
+            // Скрываем клавиатуру "отправить контакт" после того, как получили телефон.
             toUserMessage.replyMarkup = ReplyKeyboardRemove(true)
 
             val phoneEscaped = escapeHtml(normalizedPhone)
@@ -92,10 +92,10 @@ fun handleStatesCommands(
             val draft = drafts[chatId] ?: SurveyDraft()
             val completed = draft.copy(purpose = purpose)
 
-            // Persist before switching to COMPLETED.
+            // Сохраняем в базу до перехода в COMPLETED.
             onCompleted(chatId, completed)
 
-            // Keep draft/state so user can go back and adjust the last answer via /cancel.
+            // Оставляем черновик/состояние, чтобы пользователь мог вернуться назад и исправить ответ через /cancel.
             drafts[chatId] = completed
             userStates[chatId] = UserStates.COMPLETED
 

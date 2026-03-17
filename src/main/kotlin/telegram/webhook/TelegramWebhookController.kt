@@ -30,7 +30,7 @@ class TelegramWebhookController(
             val reply = surveyService.handle(update)
             val text = reply.text
 
-            // Telegram expects 200 OK; if we can't reply (no message/chat), just ack.
+            // Telegram ожидает 200 OK; если не можем ответить (нет сообщения/чата), просто подтверждаем (ack).
             if (chatId == null || text.isNullOrBlank()) {
                 HttpResponse.ok()
             } else {
@@ -42,8 +42,8 @@ class TelegramWebhookController(
                 )
             }
         } catch (e: Exception) {
-            // Never return 500 to Telegram, otherwise it will keep retrying the same update.
-            log.error("Failed to handle telegram webhook update", e)
+            // Никогда не возвращаем 500 в Telegram, иначе он будет повторно присылать тот же update.
+            log.error("Ошибка при обработке входящего webhook-обновления от Telegram", e)
 
             if (chatId == null) {
                 HttpResponse.ok()

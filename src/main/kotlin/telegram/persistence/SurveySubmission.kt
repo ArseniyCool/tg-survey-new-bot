@@ -1,7 +1,7 @@
 package telegram.persistence
 
 /**
- * Entity анкеты для таблицы survey_submissions (Micronaut Data).
+ * Сущность анкеты для таблицы survey_submissions (Micronaut Data).
  */
 
 import io.micronaut.data.annotation.GeneratedValue
@@ -16,7 +16,7 @@ data class SurveySubmission(
     @field:GeneratedValue
     val id: Long? = null,
 
-    // Explicit snake_case mapping to match the DB schema created in SurveySubmissionSchemaInitializer.
+    // Явное snake_case-сопоставление, чтобы совпадать со схемой БД, которую создает SurveySubmissionSchemaInitializer.
     @field:MappedProperty("chat_id")
     val chatId: Long,
 

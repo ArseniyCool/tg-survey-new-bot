@@ -33,7 +33,7 @@ class SurveyService(
         val contactPhone = incoming.contact?.phoneNumber
         val incomingText = incoming.text
 
-        // We support either plain text messages or contact sharing (phone).
+        // Поддерживаем либо обычный текст, либо отправку контакта (телефон).
         if (incomingText == null && contactPhone == null) {
             return BotReply(text = Answers.DONT_UNDERSTAND.text)
         }
@@ -42,12 +42,12 @@ class SurveyService(
         val normalizedText = rawText.lowercase()
         val toUser = MutableBotReply()
 
-        // 1) Global commands: compare in normalized form, so /StArT works.
+        // 1) Глобальные команды: сравниваем в нормализованном виде, чтобы работало /StArT и т.п.
         if (handleGlobalCommands(normalizedText, chatId, userStates, drafts, toUser)) {
             return toUser.toImmutable()
         }
 
-        // 2) State-driven input: keep original casing for project/purpose.
+        // 2) Ввод по шагам (состояниям): для названия/назначения сохраняем исходный регистр.
         if (handleStatesCommands(rawText, chatId, userStates, drafts, toUser) { id, completed ->
                 submissionWriter.write(id, completed)
             }
@@ -55,7 +55,7 @@ class SurveyService(
             return toUser.toImmutable()
         }
 
-        // 3) Fallback
+        // 3) Запасной вариант (если ничего не подошло)
         toUser.text = Answers.DONT_UNDERSTAND.text
         return toUser.toImmutable()
     }

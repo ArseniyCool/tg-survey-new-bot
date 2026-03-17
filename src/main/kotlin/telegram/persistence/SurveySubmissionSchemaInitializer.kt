@@ -17,7 +17,7 @@ open class SurveySubmissionSchemaInitializer(
     private val dataSource: DataSource,
 ) : ApplicationEventListener<ApplicationStartupEvent> {
 
-    @Connectable // Ensure a "current connection" exists for Micronaut Data's contextual connections.
+    @Connectable // Гарантируем "текущее подключение" для контекстных подключений Micronaut Data.
     override fun onApplicationEvent(event: ApplicationStartupEvent) {
         dataSource.connection.use { conn ->
             conn.createStatement().use { st ->

@@ -1,13 +1,13 @@
 package telegram.model
 
 /**
- * Модель ответа бота: текст + опциональная клавиатура (reply markup).
+ * Модель ответа бота: текст + опциональная клавиатура (разметка ответа / reply markup).
  */
 
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboard
 
 /**
- * What we want to send back to Telegram: text + optional keyboard.
+ * То, что мы хотим вернуть обратно в Telegram: текст + (опционально) клавиатура.
  */
 data class BotReply(
     val text: String? = null,
@@ -15,7 +15,7 @@ data class BotReply(
 )
 
 /**
- * Mutable builder used by command handlers.
+ * Изменяемый (mutable) билдер, который используют обработчики команд.
  */
 class MutableBotReply {
     var text: String? = null

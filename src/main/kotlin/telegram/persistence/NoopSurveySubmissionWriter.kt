@@ -12,6 +12,6 @@ import telegram.model.SurveyDraft
 @Requires(notEnv = ["db"])
 class NoopSurveySubmissionWriter : SurveySubmissionWriter {
     override fun write(chatId: Long, draft: SurveyDraft) {
-        // Intentionally no-op. Enable env "db" to persist submissions.
+        // Намеренно ничего не делаем. Включите окружение "db", чтобы сохранять анкеты в базу.
     }
 }

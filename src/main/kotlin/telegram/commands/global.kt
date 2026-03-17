@@ -40,7 +40,7 @@ fun handleGlobalCommands(
 
     when (text) {
         Commands.START.text -> {
-            // /start always restarts the flow from the beginning.
+            // /start всегда перезапускает опрос с самого начала.
             userStates[chatId] = UserStates.WAITING_FOR_PHONE
             drafts[chatId] = SurveyDraft()
             response.text = Answers.WELCOME.text
@@ -54,7 +54,7 @@ fun handleGlobalCommands(
         }
 
         Commands.CANCEL.text -> {
-            // /cancel = step back (undo previous answer)
+            // /cancel = шаг назад (отменить предыдущий ответ)
             val state = userStates[chatId]
             when (state) {
                 null -> {
@@ -63,13 +63,13 @@ fun handleGlobalCommands(
                 }
 
                 UserStates.WAITING_FOR_PHONE -> {
-                    // First step: nothing to undo, just remind.
+                    // Первый шаг: отменять нечего, просто подсказываем.
                     response.text = "ℹ️ Вы на первом шаге. Отправьте номер телефона или нажмите \"Отправить контакт\"."
                     response.replyMarkup = phoneKeyboard()
                 }
 
                 UserStates.WAITING_FOR_PROJECT_NAME -> {
-                    // Undo phone, go back to phone step.
+                    // Отменяем телефон, возвращаемся на шаг телефона.
                     val draft = drafts[chatId] ?: SurveyDraft()
                     drafts[chatId] = draft.copy(phone = null)
                     userStates[chatId] = UserStates.WAITING_FOR_PHONE
@@ -79,7 +79,7 @@ fun handleGlobalCommands(
                 }
 
                 UserStates.WAITING_FOR_PURPOSE -> {
-                    // Undo project name, go back to project step.
+                    // Отменяем название проекта, возвращаемся на шаг названия.
                     val draft = drafts[chatId] ?: SurveyDraft()
                     drafts[chatId] = draft.copy(projectName = null)
                     userStates[chatId] = UserStates.WAITING_FOR_PROJECT_NAME
@@ -89,7 +89,7 @@ fun handleGlobalCommands(
                 }
 
                 UserStates.COMPLETED -> {
-                    // Undo purpose, go back to purpose step.
+                    // Отменяем назначение, возвращаемся на шаг назначения.
                     val draft = drafts[chatId] ?: SurveyDraft()
                     drafts[chatId] = draft.copy(purpose = null)
                     userStates[chatId] = UserStates.WAITING_FOR_PURPOSE

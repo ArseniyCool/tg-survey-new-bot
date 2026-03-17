@@ -22,7 +22,7 @@ enum class Answers(val text: String) {
     PONG("🏓 Понг!"),
     DONT_UNDERSTAND("🤔 Не понял. Напишите /start, чтобы начать, или /help для списка команд."),
 
-    // Prompts for the next step (the handlers prepend a dynamic "saved" line with <code>user input</code>).
+    // Подсказки следующего шага (обработчики добавляют динамическую строку "сохранено" с <code>вводом пользователя</code>).
     NUMBER_SAVED("Введите <b>название проекта</b>."),
     PROJECT_SAVED("Опишите <b>назначение</b> проекта."),
 

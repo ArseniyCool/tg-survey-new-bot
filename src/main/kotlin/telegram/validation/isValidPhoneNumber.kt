@@ -1,13 +1,13 @@
 ﻿package telegram.validation
 
 /**
- * Accept common RU phone formats:
+ * Принимает распространенные форматы телефонов РФ:
  * - 8XXXXXXXXXX
  * - +7XXXXXXXXXX
  * - 7XXXXXXXXXX
- * - formatted strings like "+7 (999) 123-45-67" (we strip non-digits)
+ * - строки с форматированием, например "+7 (999) 123-45-67" (мы убираем все, кроме цифр)
  *
- * Canonical form we store/use: 8XXXXXXXXXX
+ * Канонический формат, который мы храним/используем: 8XXXXXXXXXX
  */
 fun normalizePhoneNumber(phoneNumber: String): String? {
     val digits = phoneNumber.filter { it.isDigit() }
@@ -21,7 +21,7 @@ fun normalizePhoneNumber(phoneNumber: String): String? {
     }
 
     if (digits.length == 10) {
-        // If user shared without prefix, assume local RU and add 8.
+        // Если пользователь прислал 10 цифр без префикса, считаем это РФ-номером и добавляем 8.
         return "8" + digits
     }
 
