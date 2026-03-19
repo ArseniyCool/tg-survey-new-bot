@@ -42,7 +42,19 @@ class SurveyService(
         val normalizedText = rawText.lowercase()
         val toUser = MutableBotReply()
 
-        val session = sessions.findById(chatId).orElse(UserSession(chatId = chatId))
+        val sessionOpt = sessions.findById(chatId)
+        val sessionExists = sessionOpt.isPresent
+        val session = sessionOpt.orElse(UserSession(chatId = chatId))
+
+        fun persistSession(updated: UserSession) {
+            // В Micronaut Data для сущностей с "назначаемым" PK (chat_id) save() может попытаться INSERT,
+            // поэтому при наличии записи делаем UPDATE.
+            if (sessionExists) {
+                sessions.update(updated)
+            } else {
+                sessions.save(updated)
+            }
+        }
 
         // /forget: удалить данные пользователя (сессия + все анкеты) и начать заново.
         if (normalizedText == Commands.FORGET.text) {
@@ -58,7 +70,7 @@ class SurveyService(
         // 1) Глобальные команды: сравниваем в нормализованном виде, чтобы работало /StArT и т.п.
         val global = handleGlobalCommands(normalizedText, session, toUser)
         if (global.handled) {
-            global.updatedSession?.let { sessions.save(it) }
+            global.updatedSession?.let { persistSession(it) }
             return toUser.toImmutable()
         }
 
@@ -76,7 +88,7 @@ class SurveyService(
             )
         }
         if (state.handled) {
-            state.updatedSession?.let { sessions.save(it) }
+            state.updatedSession?.let { persistSession(it) }
             return toUser.toImmutable()
         }
 

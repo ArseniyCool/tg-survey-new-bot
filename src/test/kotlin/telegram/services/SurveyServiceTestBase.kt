@@ -59,6 +59,11 @@ abstract class SurveyServiceTestBase {
             sessionsStore[session.chatId] = session
             session
         }
+        every { sessions.update(any()) } answers {
+            val session = firstArg<UserSession>()
+            sessionsStore[session.chatId] = session
+            session
+        }
 
         service = SurveyService(submissions, sessions)
     }
