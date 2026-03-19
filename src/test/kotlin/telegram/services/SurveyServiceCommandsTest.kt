@@ -14,6 +14,7 @@ import telegram.enums.Answers
 import telegram.enums.Commands
 import telegram.enums.Examples
 import org.junit.jupiter.api.Assertions.assertNull
+import org.junit.jupiter.api.Assertions.assertTrue
 
 class SurveyServiceCommandsTest : SurveyServiceTestBase() {
 
@@ -73,5 +74,30 @@ class SurveyServiceCommandsTest : SurveyServiceTestBase() {
         // сессия должна быть удалена из БД (у нас это имитируется sessionsStore)
         assertNull(sessionsStore[1L])
     }
-}
 
+    @Test
+    fun `unknown slash command should return unknown-command message`() {
+        // Любое сообщение, начинающееся с '/', трактуем как команду.
+        val response = service.handle(mockTelegramUpdate("/abracadabra"))
+        val txt = response.text ?: ""
+        assertTrue(txt.contains("Команда"))
+        assertTrue(txt.contains("/help"))
+    }
+
+    @Test
+    fun `check command should show status without creating session`() {
+        val response = service.handle(mockTelegramUpdate(Commands.CHECK.text))
+        val txt = response.text ?: ""
+        assertTrue(txt.contains("Состояние анкеты") || txt.contains("Анкета еще не начата"))
+
+        // /check не должен создавать запись в БД, если пользователь еще не начинал опрос.
+        assertNull(sessionsStore[1L])
+    }
+
+    @Test
+    fun `status command should act as alias for check`() {
+        val response = service.handle(mockTelegramUpdate(Commands.STATUS.text))
+        val txt = response.text ?: ""
+        assertTrue(txt.contains("Состояние анкеты") || txt.contains("Анкета еще не начата"))
+    }
+}

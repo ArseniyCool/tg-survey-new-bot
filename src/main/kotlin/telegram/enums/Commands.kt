@@ -10,4 +10,8 @@ enum class Commands(val text: String) {
     CANCEL("/cancel"),
     PING("/ping"),
     FORGET("/forget"),
+
+    // Показать текущее состояние анкеты в любой момент.
+    CHECK("/check"),
+    STATUS("/status"),
 }

@@ -94,5 +94,20 @@ class SurveyServiceValidationTest : SurveyServiceTestBase() {
         assertEquals(purposeInput, sessionAfterPurpose!!.purpose)
         assertEquals(UserStates.COMPLETED, sessionAfterPurpose.state)
     }
-}
 
+    @Test
+    fun `slash command during state should not be treated as free text`() {
+        service.handle(mockTelegramUpdate(Commands.START.text))
+        service.handle(mockTelegramUpdate(Examples.CORRECT_NUMBER.text))
+
+        // Сейчас ждем название проекта. Команда "/unknown" не должна сохраниться как projectName.
+        val response = service.handle(mockTelegramUpdate("/unknown"))
+        val txt = response.text ?: ""
+        assertEquals(true, txt.contains("Команда"))
+
+        val session = sessionsStore[1L]
+        assertNotNull(session)
+        assertEquals(UserStates.WAITING_FOR_PROJECT_NAME, session!!.state)
+        assertEquals(null, session.projectName)
+    }
+}

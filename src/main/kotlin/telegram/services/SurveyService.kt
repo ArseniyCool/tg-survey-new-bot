@@ -12,6 +12,7 @@ import telegram.commands.handleGlobalCommands
 import telegram.commands.handleStatesCommands
 import telegram.enums.Answers
 import telegram.enums.Commands
+import telegram.format.escapeHtml
 import telegram.model.BotReply
 import telegram.model.MutableBotReply
 import telegram.persistence.UserSession
@@ -38,6 +39,16 @@ class SurveyService(
 
         val rawText = (incomingText ?: contactPhone ?: return BotReply(text = Answers.DONT_UNDERSTAND.text)).trim()
         val normalizedText = rawText.lowercase()
+
+        // Telegram (особенно в группах) может присылать команды вида "/start@MyBot",
+        // а также команды с параметрами: "/start foo". Для сравнения команд выделяем "чистую" команду.
+        val normalizedCommand = if (normalizedText.startsWith("/")) {
+            normalizedText
+                .split(Regex("\\s+"), limit = 2)[0]
+                .substringBefore("@")
+        } else {
+            normalizedText
+        }
         val toUser = MutableBotReply()
 
         val sessionOpt = sessions.findById(chatId)
@@ -55,19 +66,29 @@ class SurveyService(
         }
 
         // /forget: СѓРґР°Р»РёС‚СЊ РґР°РЅРЅС‹Рµ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ (СЃРµСЃСЃРёСЏ + РІСЃРµ Р°РЅРєРµС‚С‹) Рё РЅР°С‡Р°С‚СЊ Р·Р°РЅРѕРІРѕ.
-        if (normalizedText == Commands.FORGET.text) {
+        if (normalizedCommand == Commands.FORGET.text) {
             sessions.deleteById(chatId)
 
             toUser.text =
-                "рџ—‘пёЏ <b>Р’Р°С€Рё РґР°РЅРЅС‹Рµ СѓРґР°Р»РµРЅС‹.</b>\n\n" +
-                    "РњРѕР¶РµС‚Рµ РЅР°С‡Р°С‚СЊ РѕРїСЂРѕСЃ Р·Р°РЅРѕРІРѕ: /start"
+                "🗑️ <b>Ваши данные удалены.</b>\n\n" +
+                    "Можете начать опрос заново: /start"
             return toUser.toImmutable()
         }
 
         // 1) Р“Р»РѕР±Р°Р»СЊРЅС‹Рµ РєРѕРјР°РЅРґС‹: СЃСЂР°РІРЅРёРІР°РµРј РІ РЅРѕСЂРјР°Р»РёР·РѕРІР°РЅРЅРѕРј РІРёРґРµ, С‡С‚РѕР±С‹ СЂР°Р±РѕС‚Р°Р»Рѕ /StArT Рё С‚.Рї.
-        val global = handleGlobalCommands(normalizedText, session, toUser)
+        val global = handleGlobalCommands(normalizedCommand, session, toUser)
         if (global.handled) {
             global.updatedSession?.let { persistSession(it) }
+            return toUser.toImmutable()
+        }
+
+        // Любое сообщение, начинающееся с '/', считаем командой. Если мы здесь — команда неизвестна.
+        // Это автоматически запрещает вводить "название проекта" / "назначение", начинающиеся с '/'.
+        if (normalizedCommand.startsWith("/")) {
+            val cmdEscaped = escapeHtml(normalizedCommand)
+            toUser.text =
+                "❓ Команда <code>$cmdEscaped</code> не найдена.\n\n" +
+                    "Напишите /help, чтобы увидеть список команд."
             return toUser.toImmutable()
         }
 
