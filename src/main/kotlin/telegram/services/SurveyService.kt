@@ -5,26 +5,23 @@ package telegram.services
  */
 
 import jakarta.inject.Singleton
-import java.util.concurrent.ConcurrentHashMap
 import org.telegram.telegrambots.meta.api.objects.Update
 import telegram.commands.handleGlobalCommands
 import telegram.commands.handleStatesCommands
 import telegram.enums.Answers
-import telegram.enums.UserStates
 import telegram.model.BotReply
 import telegram.model.MutableBotReply
-import telegram.model.SurveyDraft
 import telegram.persistence.SurveySubmission
 import telegram.persistence.SurveySubmissionRepository
+import telegram.persistence.UserSession
+import telegram.persistence.UserSessionRepository
 import java.time.Instant
 
 @Singleton
 class SurveyService(
     private val repository: SurveySubmissionRepository,
+    private val sessions: UserSessionRepository,
 ) {
-    val userStates: MutableMap<Long, UserStates> = ConcurrentHashMap()
-    val drafts: MutableMap<Long, SurveyDraft> = ConcurrentHashMap()
-
     fun handle(update: Update): BotReply {
         val incoming = update.message
         if (incoming == null) {
@@ -44,25 +41,30 @@ class SurveyService(
         val normalizedText = rawText.lowercase()
         val toUser = MutableBotReply()
 
+        val session = sessions.findById(chatId).orElse(UserSession(chatId = chatId))
+
         // 1) Глобальные команды: сравниваем в нормализованном виде, чтобы работало /StArT и т.п.
-        if (handleGlobalCommands(normalizedText, chatId, userStates, drafts, toUser)) {
+        val global = handleGlobalCommands(normalizedText, session, toUser)
+        if (global.handled) {
+            global.updatedSession?.let { sessions.save(it) }
             return toUser.toImmutable()
         }
 
         // 2) Ввод по шагам (состояниям): для названия/назначения сохраняем исходный регистр.
-        if (handleStatesCommands(rawText, chatId, userStates, drafts, toUser) { id, completed ->
-                repository.save(
-                    SurveySubmission(
-                        id = null,
-                        chatId = id,
-                        phone = completed.phone ?: "",
-                        projectName = completed.projectName ?: "",
-                        purpose = completed.purpose ?: "",
-                        createdAt = Instant.now(),
-                    )
+        val state = handleStatesCommands(rawText, session, toUser) { id, completed ->
+            repository.save(
+                SurveySubmission(
+                    id = null,
+                    chatId = id,
+                    phone = completed.phone ?: "",
+                    projectName = completed.projectName ?: "",
+                    purpose = completed.purpose ?: "",
+                    createdAt = Instant.now(),
                 )
-            }
-        ) {
+            )
+        }
+        if (state.handled) {
+            state.updatedSession?.let { sessions.save(it) }
             return toUser.toImmutable()
         }
 

@@ -10,15 +10,16 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboard
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardRemove
 import telegram.enums.UserStates
 import telegram.model.MutableBotReply
-import telegram.model.SurveyDraft
+import telegram.persistence.UserSession
+import java.time.Instant
 
 private const val NOTHING_TO_CANCEL_TEXT = "ℹ️ Сейчас нечего отменять. Нажмите /start, чтобы начать опрос."
 
 private data class CancelStep(
     val stateToReturn: UserStates,
-    val clearDraft: (SurveyDraft) -> SurveyDraft,
     val stepName: String,
     val prompt: String,
+    val clearSession: (UserSession) -> UserSession,
 )
 
 private fun replyMarkupForState(stateToReturn: UserStates): ReplyKeyboard? {
@@ -38,43 +39,38 @@ private fun replyMarkupForState(stateToReturn: UserStates): ReplyKeyboard? {
 private val cancelSteps: List<CancelStep> = listOf(
     CancelStep(
         stateToReturn = UserStates.WAITING_FOR_PHONE,
-        clearDraft = { draft -> draft.copy(phone = null) },
         stepName = "телефон",
         prompt = "Отправьте номер еще раз.",
+        clearSession = { session -> session.copy(phone = null) },
     ),
     CancelStep(
         stateToReturn = UserStates.WAITING_FOR_PROJECT_NAME,
-        clearDraft = { draft -> draft.copy(projectName = null) },
         stepName = "название проекта",
         prompt = "Введите название проекта.",
+        clearSession = { session -> session.copy(projectName = null) },
     ),
     CancelStep(
         stateToReturn = UserStates.WAITING_FOR_PURPOSE,
-        clearDraft = { draft -> draft.copy(purpose = null) },
         stepName = "назначение",
         prompt = "Введите назначение проекта.",
+        clearSession = { session -> session.copy(purpose = null) },
     ),
 )
 
-internal fun handleCancelCommand(
-    chatId: Long,
-    userStates: MutableMap<Long, UserStates>,
-    drafts: MutableMap<Long, SurveyDraft>,
-    response: MutableBotReply,
-) {
-    val state = userStates[chatId]
+internal fun handleCancelCommand(session: UserSession, response: MutableBotReply): UserSession? {
+    val state = session.state
 
+    // Если мы на самом первом шаге, то "шаг назад" делать некуда.
     if (state == null) {
         response.text = NOTHING_TO_CANCEL_TEXT
         response.replyMarkup = ReplyKeyboardRemove(true)
-        return
+        return null
     }
 
-    // Если мы на самом первом шаге, то "шаг назад" делать некуда.
     if (state.stepIndex == UserStates.WAITING_FOR_PHONE.stepIndex) {
         response.text = "ℹ️ Вы на первом шаге. Отправьте номер телефона или нажмите \"Отправить контакт\"."
         response.replyMarkup = phoneKeyboard()
-        return
+        return null
     }
 
     val returnIndex = state.stepIndex - 1
@@ -86,12 +82,13 @@ internal fun handleCancelCommand(
         // На всякий случай: если конфигурация шагов изменилась, не падаем.
         response.text = NOTHING_TO_CANCEL_TEXT
         response.replyMarkup = ReplyKeyboardRemove(true)
-        return
+        return null
     }
 
-    val draft = drafts[chatId] ?: SurveyDraft()
-    drafts[chatId] = back.clearDraft(draft)
-    userStates[chatId] = back.stateToReturn
     response.text = "⬅️ Ок, вернулись к шагу <b>${back.stepName}</b>. ${back.prompt}"
     response.replyMarkup = replyMarkupForState(back.stateToReturn)
+
+    return back
+        .clearSession(session)
+        .copy(state = back.stateToReturn, updatedAt = Instant.now())
 }

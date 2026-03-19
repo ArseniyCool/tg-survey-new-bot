@@ -11,33 +11,31 @@ import telegram.model.SurveyDraft
 import telegram.commands.state.handleWaitingForPhone
 import telegram.commands.state.handleWaitingForProjectName
 import telegram.commands.state.handleWaitingForPurpose
-import kotlin.collections.set
+import telegram.persistence.UserSession
 
 fun handleStatesCommands(
     fromUserMessage: String,
-    chatId: Long,
-    userStates: MutableMap<Long, UserStates>,
-    drafts: MutableMap<Long, SurveyDraft>,
+    session: UserSession,
     toUserMessage: MutableBotReply,
     onCompleted: (Long, SurveyDraft) -> Unit,
-): Boolean {
+): HandlingResult {
 
-    val state = userStates[chatId] ?: return false
+    val state = session.state ?: return HandlingResult(handled = false)
 
     when (state) {
         UserStates.WAITING_FOR_PHONE -> {
-            return handleWaitingForPhone(fromUserMessage, chatId, userStates, drafts, toUserMessage)
+            return handleWaitingForPhone(fromUserMessage, session, toUserMessage)
         }
 
         UserStates.WAITING_FOR_PROJECT_NAME -> {
-            return handleWaitingForProjectName(fromUserMessage, chatId, userStates, drafts, toUserMessage)
+            return handleWaitingForProjectName(fromUserMessage, session, toUserMessage)
         }
 
         UserStates.WAITING_FOR_PURPOSE -> {
-            return handleWaitingForPurpose(fromUserMessage, chatId, userStates, drafts, toUserMessage, onCompleted)
+            return handleWaitingForPurpose(fromUserMessage, session, toUserMessage, onCompleted)
         }
 
-        UserStates.COMPLETED -> return false
+        UserStates.COMPLETED -> return HandlingResult(handled = false)
     }
 }
 

@@ -21,11 +21,11 @@ class SurveyServiceValidationTest : SurveyServiceTestBase() {
 
         val response = service.handle(mockTelegramUpdate("My project 🚀"))
         assertEquals(Answers.EMOJI_NOT_ALLOWED.text, response.text)
-        assertEquals(UserStates.WAITING_FOR_PROJECT_NAME, service.userStates[1L])
+        assertEquals(UserStates.WAITING_FOR_PROJECT_NAME, sessionsStore[1L]?.state)
 
-        val draft = service.drafts[1L]
-        assertNotNull(draft)
-        assertEquals(null, draft!!.projectName)
+        val session = sessionsStore[1L]
+        assertNotNull(session)
+        assertEquals(null, session!!.projectName)
     }
 
     @Test
@@ -36,11 +36,11 @@ class SurveyServiceValidationTest : SurveyServiceTestBase() {
 
         val response = service.handle(mockTelegramUpdate("Для 🚀"))
         assertEquals(Answers.EMOJI_NOT_ALLOWED.text, response.text)
-        assertEquals(UserStates.WAITING_FOR_PURPOSE, service.userStates[1L])
+        assertEquals(UserStates.WAITING_FOR_PURPOSE, sessionsStore[1L]?.state)
 
-        val draft = service.drafts[1L]
-        assertNotNull(draft)
-        assertEquals(null, draft!!.purpose)
+        val session = sessionsStore[1L]
+        assertNotNull(session)
+        assertEquals(null, session!!.purpose)
     }
 
     @Test
@@ -50,12 +50,12 @@ class SurveyServiceValidationTest : SurveyServiceTestBase() {
 
         val tooShort = service.handle(mockTelegramUpdate("Abcd"))
         assertEquals(Answers.PROJECT_NAME_LENGTH_INVALID.text, tooShort.text)
-        assertEquals(UserStates.WAITING_FOR_PROJECT_NAME, service.userStates[1L])
+        assertEquals(UserStates.WAITING_FOR_PROJECT_NAME, sessionsStore[1L]?.state)
 
         val tooLongName = "A".repeat(31)
         val tooLong = service.handle(mockTelegramUpdate(tooLongName))
         assertEquals(Answers.PROJECT_NAME_LENGTH_INVALID.text, tooLong.text)
-        assertEquals(UserStates.WAITING_FOR_PROJECT_NAME, service.userStates[1L])
+        assertEquals(UserStates.WAITING_FOR_PROJECT_NAME, sessionsStore[1L]?.state)
     }
 
     @Test
@@ -66,12 +66,12 @@ class SurveyServiceValidationTest : SurveyServiceTestBase() {
 
         val tooShort = service.handle(mockTelegramUpdate("Abcd"))
         assertEquals(Answers.PURPOSE_LENGTH_INVALID.text, tooShort.text)
-        assertEquals(UserStates.WAITING_FOR_PURPOSE, service.userStates[1L])
+        assertEquals(UserStates.WAITING_FOR_PURPOSE, sessionsStore[1L]?.state)
 
         val tooLongPurpose = "A".repeat(101)
         val tooLong = service.handle(mockTelegramUpdate(tooLongPurpose))
         assertEquals(Answers.PURPOSE_LENGTH_INVALID.text, tooLong.text)
-        assertEquals(UserStates.WAITING_FOR_PURPOSE, service.userStates[1L])
+        assertEquals(UserStates.WAITING_FOR_PURPOSE, sessionsStore[1L]?.state)
     }
 
     @Test
@@ -82,17 +82,17 @@ class SurveyServiceValidationTest : SurveyServiceTestBase() {
         val projectInput = "My COOL Project"
         service.handle(mockTelegramUpdate(projectInput))
 
-        val draftAfterProject = service.drafts[1L]
-        assertNotNull(draftAfterProject)
-        assertEquals(projectInput, draftAfterProject!!.projectName)
+        val sessionAfterProject = sessionsStore[1L]
+        assertNotNull(sessionAfterProject)
+        assertEquals(projectInput, sessionAfterProject!!.projectName)
 
         val purposeInput = "For Internal Automation"
         service.handle(mockTelegramUpdate(purposeInput))
 
-        val draftAfterPurpose = service.drafts[1L]
-        assertNotNull(draftAfterPurpose)
-        assertEquals(purposeInput, draftAfterPurpose!!.purpose)
-        assertEquals(UserStates.COMPLETED, service.userStates[1L])
+        val sessionAfterPurpose = sessionsStore[1L]
+        assertNotNull(sessionAfterPurpose)
+        assertEquals(purposeInput, sessionAfterPurpose!!.purpose)
+        assertEquals(UserStates.COMPLETED, sessionAfterPurpose.state)
     }
 }
 

@@ -7,44 +7,51 @@ package telegram.commands
 
 import telegram.enums.Answers
 import telegram.enums.Commands
-import telegram.enums.UserStates
 import telegram.model.MutableBotReply
-import telegram.model.SurveyDraft
+import telegram.persistence.UserSession
+import telegram.enums.UserStates
+import java.time.Instant
 
 fun handleGlobalCommands(
     text: String,
-    chatId: Long,
-    userStates: MutableMap<Long, UserStates>,
-    drafts: MutableMap<Long, SurveyDraft>,
+    session: UserSession,
     response: MutableBotReply,
-): Boolean {
+): HandlingResult {
 
     when (text) {
         Commands.START.text -> {
             // /start всегда перезапускает опрос с самого начала.
-            userStates[chatId] = UserStates.WAITING_FOR_PHONE
-            drafts[chatId] = SurveyDraft()
             response.text = Answers.WELCOME.text
             response.replyMarkup = phoneKeyboard()
-            return true
+
+            return HandlingResult(
+                handled = true,
+                updatedSession = session.copy(
+                    state = UserStates.WAITING_FOR_PHONE,
+                    phone = null,
+                    projectName = null,
+                    purpose = null,
+                    updatedAt = Instant.now(),
+                )
+            )
         }
 
         Commands.HELP.text -> {
             response.text = Answers.HELP.text
-            return true
+            return HandlingResult(handled = true)
         }
 
         Commands.CANCEL.text -> {
             // /cancel = шаг назад (отменить предыдущий ответ)
-            handleCancelCommand(chatId, userStates, drafts, response)
-            return true
+            val updated = handleCancelCommand(session, response)
+            return HandlingResult(handled = true, updatedSession = updated)
         }
 
         Commands.PING.text -> {
             response.text = Answers.PONG.text
-            return true
+            return HandlingResult(handled = true)
         }
     }
 
-    return false
+    return HandlingResult(handled = false)
 }

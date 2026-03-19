@@ -15,27 +15,45 @@ import org.telegram.telegrambots.meta.api.objects.Message
 import org.telegram.telegrambots.meta.api.objects.Update
 import telegram.persistence.SurveySubmission
 import telegram.persistence.SurveySubmissionRepository
+import telegram.persistence.UserSession
+import telegram.persistence.UserSessionRepository
+import java.util.Optional
 
 abstract class SurveyServiceTestBase {
 
     protected lateinit var service: SurveyService
-    protected lateinit var repository: SurveySubmissionRepository
-    protected var lastSaved: SurveySubmission? = null
+    protected lateinit var submissions: SurveySubmissionRepository
+    protected lateinit var sessions: UserSessionRepository
+
+    protected val sessionsStore: MutableMap<Long, UserSession> = mutableMapOf()
+
+    protected var lastSavedSubmission: SurveySubmission? = null
 
     @BeforeEach
     fun setUp() {
-        lastSaved = null
-        repository = mockk()
+        sessionsStore.clear()
+        lastSavedSubmission = null
+
+        submissions = mockk()
+        sessions = mockk()
 
         val savedSlot = slot<SurveySubmission>()
-        every { repository.save(capture(savedSlot)) } answers {
-            lastSaved = savedSlot.captured
+        every { submissions.save(capture(savedSlot)) } answers {
+            lastSavedSubmission = savedSlot.captured
             savedSlot.captured
         }
 
-        service = SurveyService(repository)
-        service.userStates.clear()
-        service.drafts.clear()
+        every { sessions.findById(any()) } answers {
+            val id = firstArg<Long>()
+            Optional.ofNullable(sessionsStore[id])
+        }
+        every { sessions.save(any()) } answers {
+            val session = firstArg<UserSession>()
+            sessionsStore[session.chatId] = session
+            session
+        }
+
+        service = SurveyService(submissions, sessions)
     }
 
     protected fun mockTelegramUpdate(text: String, chatId: Long = 1L): Update {

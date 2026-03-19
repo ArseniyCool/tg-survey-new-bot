@@ -34,9 +34,9 @@ class SurveyServicePhoneTest : SurveyServiceTestBase() {
         assert(txt.contains("89173967903"))
         assert(txt.contains("<code>"))
 
-        val draft = service.drafts[1L]
-        assertNotNull(draft)
-        assertEquals("89173967903", draft!!.phone)
+        val session = sessionsStore[1L]
+        assertNotNull(session)
+        assertEquals("89173967903", session!!.phone)
     }
 
     @Test
