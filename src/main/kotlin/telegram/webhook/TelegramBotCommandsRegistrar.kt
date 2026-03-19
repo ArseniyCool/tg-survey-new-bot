@@ -1,4 +1,4 @@
-package telegram.webhook
+﻿package telegram.webhook
 
 /**
  * Регистрация меню команд бота (setMyCommands) при старте приложения.
@@ -36,6 +36,7 @@ class TelegramBotCommandsRegistrar(
               "commands": [
                 {"command": "start",  "description": "Начать / перезапустить"},
                 {"command": "help",   "description": "Показать справку"},
+                {"command": "privacy","description": "Как храним данные"},
                 {"command": "cancel", "description": "Шаг назад"},
                 {"command": "check",  "description": "Состояние анкеты"},
                 {"command": "forget", "description": "Удалить мои данные"},
@@ -70,4 +71,3 @@ class TelegramBotCommandsRegistrar(
         }
     }
 }
-

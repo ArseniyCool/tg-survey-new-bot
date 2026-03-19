@@ -1,4 +1,4 @@
-package telegram.commands.state
+﻿package telegram.commands.state
 
 /**
  * Обработка шага "название проекта".
@@ -8,9 +8,9 @@ import telegram.commands.HandlingResult
 import telegram.enums.Answers
 import telegram.enums.InputLimit
 import telegram.enums.UserStates
-import telegram.format.escapeHtml
 import telegram.model.MutableBotReply
 import telegram.persistence.UserSession
+import telegram.text.Messages
 import telegram.validation.containsEmoji
 import telegram.validation.isLengthInRange
 import java.time.Instant
@@ -32,10 +32,7 @@ internal fun handleWaitingForProjectName(
         return HandlingResult(handled = true)
     }
 
-    val projectEscaped = escapeHtml(projectName)
-    toUserMessage.text =
-        "✅ <b>Ваш проект</b> <code>$projectEscaped</code> сохранен.\n\n" +
-            Answers.PROJECT_SAVED.text
+    toUserMessage.text = Messages.projectSaved(projectName) + "\n\n" + Answers.PROJECT_SAVED.text
 
     return HandlingResult(
         handled = true,
@@ -46,3 +43,4 @@ internal fun handleWaitingForProjectName(
         )
     )
 }
+

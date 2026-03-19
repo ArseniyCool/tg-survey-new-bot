@@ -3,7 +3,7 @@ plugins {
     kotlin("kapt") version "1.9.22"
 }
 
-group = "org.example"
+group = "telegram"
 version = "1.0-SNAPSHOT"
 
 repositories {

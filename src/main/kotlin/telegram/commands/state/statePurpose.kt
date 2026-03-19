@@ -1,4 +1,4 @@
-package telegram.commands.state
+﻿package telegram.commands.state
 
 /**
  * Обработка шага "назначение" и формирование итоговой квитанции.
@@ -8,9 +8,9 @@ import telegram.commands.HandlingResult
 import telegram.enums.Answers
 import telegram.enums.InputLimit
 import telegram.enums.UserStates
-import telegram.format.escapeHtml
 import telegram.model.MutableBotReply
 import telegram.persistence.UserSession
+import telegram.text.Messages
 import telegram.validation.containsEmoji
 import telegram.validation.isLengthInRange
 import java.time.Instant
@@ -38,18 +38,12 @@ internal fun handleWaitingForPurpose(
         updatedAt = Instant.now(),
     )
 
-    val phone = escapeHtml(completedSession.phone ?: "")
-    val project = escapeHtml(completedSession.projectName ?: "")
-    val purposeEscaped = escapeHtml(completedSession.purpose ?: "")
-
-    toUserMessage.text =
-        "🧾 <b>Спасибо за заполнение анкеты!</b>\n" +
-            "✅ Все сохранено.\n\n" +
-            "📱 <b>Телефон:</b> <code>$phone</code>\n" +
-            "📦 <b>Проект:</b> <code>$project</code>\n" +
-            "🎯 <b>Назначение:</b> <code>$purposeEscaped</code>\n\n" +
-            "🔁 Заполнить заново? /start\n" +
-            "⬅️ Шаг назад: /cancel"
+    toUserMessage.text = Messages.receipt(
+        phone = completedSession.phone.orEmpty(),
+        projectName = completedSession.projectName.orEmpty(),
+        purpose = completedSession.purpose.orEmpty(),
+    )
 
     return HandlingResult(handled = true, updatedSession = completedSession)
 }
+

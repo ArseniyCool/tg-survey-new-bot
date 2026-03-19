@@ -1,4 +1,4 @@
-package telegram.commands.state
+﻿package telegram.commands.state
 
 /**
  * Обработка шага "телефон".
@@ -8,9 +8,9 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardRem
 import telegram.commands.HandlingResult
 import telegram.enums.Answers
 import telegram.enums.UserStates
-import telegram.format.escapeHtml
 import telegram.model.MutableBotReply
 import telegram.persistence.UserSession
+import telegram.text.Messages
 import telegram.validation.normalizePhoneNumber
 import java.time.Instant
 
@@ -25,12 +25,10 @@ internal fun handleWaitingForPhone(
         return HandlingResult(handled = true)
     }
 
-    // Скрываем клавиатуру "отправить контакт" после того, как получили телефон.
+    // Прячем клавиатуру "отправить контакт" после того, как получили телефон.
     toUserMessage.replyMarkup = ReplyKeyboardRemove(true)
 
-    val phoneEscaped = escapeHtml(normalizedPhone)
-    toUserMessage.text = "✅ <b>Ваш телефон</b> <code>$phoneEscaped</code> сохранен.\n\n" +
-            Answers.NUMBER_SAVED.text
+    toUserMessage.text = Messages.phoneSaved(normalizedPhone) + "\n\n" + Answers.NUMBER_SAVED.text
 
     return HandlingResult(
         handled = true,
@@ -41,3 +39,4 @@ internal fun handleWaitingForPhone(
         )
     )
 }
+
