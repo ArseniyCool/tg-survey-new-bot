@@ -9,6 +9,7 @@ import org.telegram.telegrambots.meta.api.objects.Update
 import telegram.commands.handleGlobalCommands
 import telegram.commands.handleStatesCommands
 import telegram.enums.Answers
+import telegram.enums.Commands
 import telegram.model.BotReply
 import telegram.model.MutableBotReply
 import telegram.persistence.SurveySubmission
@@ -42,6 +43,17 @@ class SurveyService(
         val toUser = MutableBotReply()
 
         val session = sessions.findById(chatId).orElse(UserSession(chatId = chatId))
+
+        // /forget: удалить данные пользователя (сессия + все анкеты) и начать заново.
+        if (normalizedText == Commands.FORGET.text) {
+            sessions.deleteById(chatId)
+            repository.deleteByChatId(chatId)
+
+            toUser.text =
+                "🗑️ <b>Ваши данные удалены.</b>\n\n" +
+                    "Можете начать опрос заново: /start"
+            return toUser.toImmutable()
+        }
 
         // 1) Глобальные команды: сравниваем в нормализованном виде, чтобы работало /StArT и т.п.
         val global = handleGlobalCommands(normalizedText, session, toUser)

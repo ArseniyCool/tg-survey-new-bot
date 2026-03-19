@@ -37,6 +37,7 @@ class TelegramBotCommandsRegistrar(
                 {"command": "start",  "description": "Начать / перезапустить"},
                 {"command": "help",   "description": "Показать справку"},
                 {"command": "cancel", "description": "Шаг назад"},
+                {"command": "forget", "description": "Удалить мои данные"},
                 {"command": "ping",   "description": "Проверка связи"}
               ]
             }

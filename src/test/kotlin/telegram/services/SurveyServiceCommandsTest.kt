@@ -13,6 +13,7 @@ import org.telegram.telegrambots.meta.api.objects.Update
 import telegram.enums.Answers
 import telegram.enums.Commands
 import telegram.enums.Examples
+import org.junit.jupiter.api.Assertions.assertNull
 
 class SurveyServiceCommandsTest : SurveyServiceTestBase() {
 
@@ -56,6 +57,21 @@ class SurveyServiceCommandsTest : SurveyServiceTestBase() {
 
         val response = service.handle(update)
         assertEquals(Answers.DONT_UNDERSTAND.text, response.text)
+    }
+
+    @Test
+    fun `forget command should delete user data`() {
+        // создадим "сессию" в нашем тестовом хранилище, чтобы было что удалять
+        service.handle(mockTelegramUpdate(Commands.START.text))
+        assertNotNull(sessionsStore[1L])
+
+        val response = service.handle(mockTelegramUpdate(Commands.FORGET.text))
+        val txt = response.text ?: ""
+        assert(txt.contains("данные удалены"))
+        assert(txt.contains("/start"))
+
+        // сессия должна быть удалена из БД (у нас это имитируется sessionsStore)
+        assertNull(sessionsStore[1L])
     }
 }
 

@@ -9,4 +9,6 @@ import io.micronaut.data.model.query.builder.sql.Dialect
 import io.micronaut.data.repository.CrudRepository
 
 @JdbcRepository(dialect = Dialect.POSTGRES)
-interface SurveySubmissionRepository : CrudRepository<SurveySubmission, Long>
+interface SurveySubmissionRepository : CrudRepository<SurveySubmission, Long> {
+    fun deleteByChatId(chatId: Long): Long
+}

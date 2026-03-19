@@ -18,6 +18,7 @@ import telegram.persistence.SurveySubmissionRepository
 import telegram.persistence.UserSession
 import telegram.persistence.UserSessionRepository
 import java.util.Optional
+import io.mockk.justRun
 
 abstract class SurveyServiceTestBase {
 
@@ -41,6 +42,12 @@ abstract class SurveyServiceTestBase {
         every { submissions.save(capture(savedSlot)) } answers {
             lastSavedSubmission = savedSlot.captured
             savedSlot.captured
+        }
+        every { submissions.deleteByChatId(any()) } returns 0L
+
+        every { sessions.deleteById(any()) } answers {
+            val id = firstArg<Long>()
+            sessionsStore.remove(id)
         }
 
         every { sessions.findById(any()) } answers {

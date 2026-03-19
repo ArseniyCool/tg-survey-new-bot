@@ -9,4 +9,5 @@ enum class Commands(val text: String) {
     HELP("/help"),
     CANCEL("/cancel"),
     PING("/ping"),
+    FORGET("/forget"),
 }
