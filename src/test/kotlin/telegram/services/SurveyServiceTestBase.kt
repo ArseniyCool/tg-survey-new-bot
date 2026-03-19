@@ -8,42 +8,25 @@ package telegram.services
 
 import io.mockk.every
 import io.mockk.mockk
-import io.mockk.slot
 import org.junit.jupiter.api.BeforeEach
 import org.telegram.telegrambots.meta.api.objects.Contact
 import org.telegram.telegrambots.meta.api.objects.Message
 import org.telegram.telegrambots.meta.api.objects.Update
-import telegram.persistence.SurveySubmission
-import telegram.persistence.SurveySubmissionRepository
 import telegram.persistence.UserSession
 import telegram.persistence.UserSessionRepository
 import java.util.Optional
-import io.mockk.justRun
 
 abstract class SurveyServiceTestBase {
 
     protected lateinit var service: SurveyService
-    protected lateinit var submissions: SurveySubmissionRepository
     protected lateinit var sessions: UserSessionRepository
 
     protected val sessionsStore: MutableMap<Long, UserSession> = mutableMapOf()
 
-    protected var lastSavedSubmission: SurveySubmission? = null
-
     @BeforeEach
     fun setUp() {
         sessionsStore.clear()
-        lastSavedSubmission = null
-
-        submissions = mockk()
         sessions = mockk()
-
-        val savedSlot = slot<SurveySubmission>()
-        every { submissions.save(capture(savedSlot)) } answers {
-            lastSavedSubmission = savedSlot.captured
-            savedSlot.captured
-        }
-        every { submissions.deleteByChatId(any()) } returns 0L
 
         every { sessions.deleteById(any()) } answers {
             val id = firstArg<Long>()
@@ -65,7 +48,7 @@ abstract class SurveyServiceTestBase {
             session
         }
 
-        service = SurveyService(submissions, sessions)
+        service = SurveyService(sessions)
     }
 
     protected fun mockTelegramUpdate(text: String, chatId: Long = 1L): Update {

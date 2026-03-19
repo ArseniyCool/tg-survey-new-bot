@@ -10,7 +10,6 @@ import telegram.enums.InputLimit
 import telegram.enums.UserStates
 import telegram.format.escapeHtml
 import telegram.model.MutableBotReply
-import telegram.model.SurveyDraft
 import telegram.persistence.UserSession
 import telegram.validation.containsEmoji
 import telegram.validation.isLengthInRange
@@ -20,7 +19,6 @@ internal fun handleWaitingForPurpose(
     fromUserMessage: String,
     session: UserSession,
     toUserMessage: MutableBotReply,
-    onCompleted: (Long, SurveyDraft) -> Unit,
 ): HandlingResult {
     val purpose = fromUserMessage.trim()
 
@@ -39,15 +37,6 @@ internal fun handleWaitingForPurpose(
         purpose = purpose,
         updatedAt = Instant.now(),
     )
-
-    val completedDraft = SurveyDraft(
-        phone = completedSession.phone,
-        projectName = completedSession.projectName,
-        purpose = completedSession.purpose,
-    )
-
-    // Сохраняем в базу до перехода в COMPLETED.
-    onCompleted(completedSession.chatId, completedDraft)
 
     val phone = escapeHtml(completedSession.phone ?: "")
     val project = escapeHtml(completedSession.projectName ?: "")

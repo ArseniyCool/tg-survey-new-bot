@@ -7,7 +7,6 @@ package telegram.commands
 
 import telegram.enums.UserStates
 import telegram.model.MutableBotReply
-import telegram.model.SurveyDraft
 import telegram.commands.state.handleWaitingForPhone
 import telegram.commands.state.handleWaitingForProjectName
 import telegram.commands.state.handleWaitingForPurpose
@@ -17,7 +16,6 @@ fun handleStatesCommands(
     fromUserMessage: String,
     session: UserSession,
     toUserMessage: MutableBotReply,
-    onCompleted: (Long, SurveyDraft) -> Unit,
 ): HandlingResult {
 
     val state = session.state ?: return HandlingResult(handled = false)
@@ -32,7 +30,7 @@ fun handleStatesCommands(
         }
 
         UserStates.WAITING_FOR_PURPOSE -> {
-            return handleWaitingForPurpose(fromUserMessage, session, toUserMessage, onCompleted)
+            return handleWaitingForPurpose(fromUserMessage, session, toUserMessage)
         }
 
         UserStates.COMPLETED -> return HandlingResult(handled = false)

@@ -29,8 +29,7 @@ internal fun handleWaitingForPhone(
     toUserMessage.replyMarkup = ReplyKeyboardRemove(true)
 
     val phoneEscaped = escapeHtml(normalizedPhone)
-    toUserMessage.text =
-        "✅ <b>Ваш телефон</b> <code>$phoneEscaped</code> сохранен.\n\n" +
+    toUserMessage.text = "✅ <b>Ваш телефон</b> <code>$phoneEscaped</code> сохранен.\n\n" +
             Answers.NUMBER_SAVED.text
 
     return HandlingResult(
