@@ -1,7 +1,7 @@
 package telegram.persistence
 
 /**
- * Инициализация схемы: создает таблицу survey_submissions при старте приложения.
+ * Инициализация схемы: создает необходимые таблицы при старте приложения.
  */
 
 import io.micronaut.context.event.ApplicationEventListener
@@ -21,13 +21,13 @@ open class SurveySubmissionSchemaInitializer(
             conn.createStatement().use { st ->
                 st.execute(
                     """
-                    CREATE TABLE IF NOT EXISTS survey_submissions (
-                        id BIGSERIAL PRIMARY KEY,
-                        chat_id BIGINT NOT NULL,
-                        phone VARCHAR(32) NOT NULL,
-                        project_name VARCHAR(255) NOT NULL,
-                        purpose TEXT NOT NULL,
-                        created_at TIMESTAMPTZ NOT NULL
+                    CREATE TABLE IF NOT EXISTS user_sessions (
+                        chat_id BIGINT PRIMARY KEY,
+                        state VARCHAR(32),
+                        phone VARCHAR(32),
+                        project_name VARCHAR(255),
+                        purpose TEXT,
+                        updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
                     );
                     """.trimIndent()
                 )

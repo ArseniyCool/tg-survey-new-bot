@@ -8,34 +8,47 @@ package telegram.services
 
 import io.mockk.every
 import io.mockk.mockk
-import io.mockk.slot
 import org.junit.jupiter.api.BeforeEach
 import org.telegram.telegrambots.meta.api.objects.Contact
 import org.telegram.telegrambots.meta.api.objects.Message
 import org.telegram.telegrambots.meta.api.objects.Update
-import telegram.persistence.SurveySubmission
-import telegram.persistence.SurveySubmissionRepository
+import telegram.persistence.UserSession
+import telegram.persistence.UserSessionRepository
+import java.util.Optional
 
 abstract class SurveyServiceTestBase {
 
     protected lateinit var service: SurveyService
-    protected lateinit var repository: SurveySubmissionRepository
-    protected var lastSaved: SurveySubmission? = null
+    protected lateinit var sessions: UserSessionRepository
+
+    protected val sessionsStore: MutableMap<Long, UserSession> = mutableMapOf()
 
     @BeforeEach
     fun setUp() {
-        lastSaved = null
-        repository = mockk()
+        sessionsStore.clear()
+        sessions = mockk()
 
-        val savedSlot = slot<SurveySubmission>()
-        every { repository.save(capture(savedSlot)) } answers {
-            lastSaved = savedSlot.captured
-            savedSlot.captured
+        every { sessions.deleteById(any()) } answers {
+            val id = firstArg<Long>()
+            sessionsStore.remove(id)
         }
 
-        service = SurveyService(repository)
-        service.userStates.clear()
-        service.drafts.clear()
+        every { sessions.findById(any()) } answers {
+            val id = firstArg<Long>()
+            Optional.ofNullable(sessionsStore[id])
+        }
+        every { sessions.save(any()) } answers {
+            val session = firstArg<UserSession>()
+            sessionsStore[session.chatId] = session
+            session
+        }
+        every { sessions.update(any()) } answers {
+            val session = firstArg<UserSession>()
+            sessionsStore[session.chatId] = session
+            session
+        }
+
+        service = SurveyService(sessions)
     }
 
     protected fun mockTelegramUpdate(text: String, chatId: Long = 1L): Update {

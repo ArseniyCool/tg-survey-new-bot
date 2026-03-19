@@ -22,10 +22,10 @@ class SurveyServiceCancelTest : SurveyServiceTestBase() {
         val txt = cancelResponse.text ?: ""
         assert(txt.contains("телефон"))
 
-        assertEquals(UserStates.WAITING_FOR_PHONE, service.userStates[1L])
-        val draft = service.drafts[1L]
-        assertNotNull(draft)
-        assertEquals(null, draft!!.phone)
+        val session = sessionsStore[1L]
+        assertNotNull(session)
+        assertEquals(UserStates.WAITING_FOR_PHONE, session!!.state)
+        assertEquals(null, session.phone)
     }
 
     @Test
@@ -38,11 +38,11 @@ class SurveyServiceCancelTest : SurveyServiceTestBase() {
         val txt = cancelResponse.text ?: ""
         assert(txt.contains("название проекта"))
 
-        assertEquals(UserStates.WAITING_FOR_PROJECT_NAME, service.userStates[1L])
-        val draft = service.drafts[1L]
-        assertNotNull(draft)
-        assertEquals(null, draft!!.projectName)
-        assertEquals(Examples.CORRECT_NUMBER.text, draft.phone)
+        val session = sessionsStore[1L]
+        assertNotNull(session)
+        assertEquals(UserStates.WAITING_FOR_PROJECT_NAME, session!!.state)
+        assertEquals(null, session.projectName)
+        assertEquals(Examples.CORRECT_NUMBER.text, session.phone)
     }
 
     @Test
@@ -52,16 +52,16 @@ class SurveyServiceCancelTest : SurveyServiceTestBase() {
         service.handle(mockTelegramUpdate(Examples.PROJECT.text))
         service.handle(mockTelegramUpdate(Examples.PURPOSE.text))
 
-        assertEquals(UserStates.COMPLETED, service.userStates[1L])
+        assertEquals(UserStates.COMPLETED, sessionsStore[1L]?.state)
 
         val cancelResponse = service.handle(mockTelegramUpdate(Commands.CANCEL.text))
         val txt = cancelResponse.text ?: ""
         assert(txt.contains("назначение"))
 
-        assertEquals(UserStates.WAITING_FOR_PURPOSE, service.userStates[1L])
-        val draft = service.drafts[1L]
-        assertNotNull(draft)
-        assertEquals(null, draft!!.purpose)
+        val session = sessionsStore[1L]
+        assertNotNull(session)
+        assertEquals(UserStates.WAITING_FOR_PURPOSE, session!!.state)
+        assertEquals(null, session.purpose)
     }
 }
 

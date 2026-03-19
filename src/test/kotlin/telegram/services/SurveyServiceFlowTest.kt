@@ -46,14 +46,14 @@ class SurveyServiceFlowTest : SurveyServiceTestBase() {
         assert(txt.contains("/cancel"))
         assert(txt.contains("/start"))
 
-        assertEquals(UserStates.COMPLETED, service.userStates[1L])
+        assertEquals(UserStates.COMPLETED, sessionsStore[1L]?.state)
 
-        val saved = lastSaved
-        assertNotNull(saved)
-        assertEquals(1L, saved!!.chatId)
-        assertEquals(Examples.CORRECT_NUMBER.text, saved.phone)
-        assertEquals(Examples.PROJECT.text, saved.projectName)
-        assertEquals(Examples.PURPOSE.text, saved.purpose)
+        val session = sessionsStore[1L]
+        assertNotNull(session)
+        assertEquals(UserStates.COMPLETED, session!!.state)
+        assertEquals(Examples.CORRECT_NUMBER.text, session.phone)
+        assertEquals(Examples.PROJECT.text, session.projectName)
+        assertEquals(Examples.PURPOSE.text, session.purpose)
     }
 
     @Test

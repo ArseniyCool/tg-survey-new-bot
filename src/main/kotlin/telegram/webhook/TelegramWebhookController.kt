@@ -1,7 +1,11 @@
-package telegram.webhook
+﻿package telegram.webhook
 
 /**
- * Webhook-контроллер: принимает обновления Telegram и возвращает SendMessage.
+ * Webhook-контроллер: принимает обновления Telegram и возвращает SendMessage в ответ.
+ *
+ * Важно:
+ * - Telegram ожидает 200 OK. Если вернуть 500, Telegram будет ретраить тот же update.
+ * - Поэтому даже при ошибках мы стараемся отвечать 200 OK.
  */
 
 import io.micronaut.http.HttpResponse
@@ -30,7 +34,7 @@ class TelegramWebhookController(
             val reply = surveyService.handle(update)
             val text = reply.text
 
-            // Telegram ожидает 200 OK; если не можем ответить (нет сообщения/чата), просто подтверждаем (ack).
+            // Если мы не можем ответить (нет message/chat), просто подтверждаем (ack).
             if (chatId == null || text.isNullOrBlank()) {
                 HttpResponse.ok()
             } else {
@@ -42,9 +46,9 @@ class TelegramWebhookController(
                 )
             }
         } catch (e: Exception) {
-            // Никогда не возвращаем 500 в Telegram, иначе он будет повторно присылать тот же update.
             log.error("Ошибка при обработке входящего webhook-обновления от Telegram", e)
 
+            // Даже при ошибках возвращаем 200 OK, чтобы Telegram не ретраил update бесконечно.
             if (chatId == null) {
                 HttpResponse.ok()
             } else {
@@ -57,3 +61,4 @@ class TelegramWebhookController(
         }
     }
 }
+

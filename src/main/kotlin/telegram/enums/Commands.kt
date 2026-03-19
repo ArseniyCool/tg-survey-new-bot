@@ -1,4 +1,4 @@
-package telegram.enums
+﻿package telegram.enums
 
 /**
  * Команды бота (строки /start, /help, /cancel, /ping).
@@ -7,6 +7,12 @@ package telegram.enums
 enum class Commands(val text: String) {
     START("/start"),
     HELP("/help"),
+    PRIVACY("/privacy"),
     CANCEL("/cancel"),
     PING("/ping"),
+    FORGET("/forget"),
+
+    // Показать текущее состояние анкеты в любой момент.
+    CHECK("/check"),
+    STATUS("/status"),
 }

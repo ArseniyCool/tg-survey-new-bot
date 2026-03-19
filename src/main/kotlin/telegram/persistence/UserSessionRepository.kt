@@ -1,7 +1,7 @@
 package telegram.persistence
 
 /**
- * CRUD-репозиторий Micronaut Data для работы с таблицей анкет.
+ * Репозиторий Micronaut Data для хранения прогресса (сессии) пользователя.
  */
 
 import io.micronaut.data.jdbc.annotation.JdbcRepository
@@ -9,4 +9,5 @@ import io.micronaut.data.model.query.builder.sql.Dialect
 import io.micronaut.data.repository.CrudRepository
 
 @JdbcRepository(dialect = Dialect.POSTGRES)
-interface SurveySubmissionRepository : CrudRepository<SurveySubmission, Long>
+interface UserSessionRepository : CrudRepository<UserSession, Long>
+

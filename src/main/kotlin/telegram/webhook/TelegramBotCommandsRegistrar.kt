@@ -1,9 +1,11 @@
-package telegram.webhook
+﻿package telegram.webhook
 
 /**
  * Регистрация меню команд бота (setMyCommands) при старте приложения.
+ *
+ * Это именно "меню подсказок" в интерфейсе Telegram (кнопка со слэш-командами).
+ * Telegram ожидает команды без ведущего '/'.
  */
-
 import io.micronaut.context.annotation.Property
 import io.micronaut.context.annotation.Requires
 import io.micronaut.context.event.ApplicationEventListener
@@ -24,8 +26,6 @@ class TelegramBotCommandsRegistrar(
     private val log = LoggerFactory.getLogger(TelegramBotCommandsRegistrar::class.java)
 
     override fun onApplicationEvent(event: ApplicationStartupEvent) {
-        // Настраиваем меню "слэш-команд" в интерфейсе Telegram.
-        // Telegram ожидает команды без ведущего '/'.
         if (token.isBlank()) {
             log.warn("telegram.token пустой; регистрацию меню команд пропускаем")
             return
@@ -36,7 +36,10 @@ class TelegramBotCommandsRegistrar(
               "commands": [
                 {"command": "start",  "description": "Начать / перезапустить"},
                 {"command": "help",   "description": "Показать справку"},
+                {"command": "privacy","description": "Как храним данные"},
                 {"command": "cancel", "description": "Шаг назад"},
+                {"command": "check",  "description": "Состояние анкеты"},
+                {"command": "forget", "description": "Удалить мои данные"},
                 {"command": "ping",   "description": "Проверка связи"}
               ]
             }
@@ -56,7 +59,11 @@ class TelegramBotCommandsRegistrar(
             if (response.statusCode() in 200..299) {
                 log.info("Меню команд Telegram успешно зарегистрировано")
             } else {
-                log.warn("Не удалось зарегистрировать меню команд Telegram: status={} body={}", response.statusCode(), response.body())
+                log.warn(
+                    "Не удалось зарегистрировать меню команд Telegram: status={} body={}",
+                    response.statusCode(),
+                    response.body()
+                )
             }
         } catch (e: Exception) {
             // Не ломаем старт приложения, если Telegram API недоступен.
