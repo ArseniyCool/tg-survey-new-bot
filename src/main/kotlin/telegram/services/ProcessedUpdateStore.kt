@@ -8,6 +8,7 @@ package telegram.services
 
 import io.micronaut.data.connection.annotation.Connectable
 import jakarta.inject.Singleton
+import org.slf4j.LoggerFactory
 import java.sql.Timestamp
 import java.time.Instant
 import javax.sql.DataSource
@@ -16,6 +17,8 @@ import javax.sql.DataSource
 open class ProcessedUpdateStore(
     private val dataSource: DataSource,
 ) {
+    private val log = LoggerFactory.getLogger(ProcessedUpdateStore::class.java)
+
     @Connectable
     open fun tryAcquire(updateId: Long): Boolean {
         dataSource.connection.use { connection ->
@@ -29,7 +32,10 @@ open class ProcessedUpdateStore(
                 statement.setLong(1, updateId)
                 statement.setString(2, "PROCESSING")
                 statement.setTimestamp(3, Timestamp.from(Instant.now()))
-                return statement.executeUpdate() == 1
+                val inserted = statement.executeUpdate() == 1
+
+                log.info("event=update_acquire updateId={} acquired={}", updateId, inserted)
+                return inserted
             }
         }
     }
@@ -50,6 +56,8 @@ open class ProcessedUpdateStore(
                 statement.executeUpdate()
             }
         }
+
+        log.info("event=update_completed updateId={}", updateId)
     }
 
     @Connectable
@@ -66,5 +74,7 @@ open class ProcessedUpdateStore(
                 statement.executeUpdate()
             }
         }
+
+        log.warn("event=update_released updateId={}", updateId)
     }
 }

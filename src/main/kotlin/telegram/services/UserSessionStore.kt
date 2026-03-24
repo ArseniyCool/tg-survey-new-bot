@@ -8,6 +8,7 @@ package telegram.services
  */
 
 import jakarta.inject.Singleton
+import org.slf4j.LoggerFactory
 import telegram.persistence.UserSession
 import telegram.persistence.UserSessionRepository
 
@@ -15,8 +16,19 @@ import telegram.persistence.UserSessionRepository
 class UserSessionStore(
     private val sessions: UserSessionRepository,
 ) {
+    private val log = LoggerFactory.getLogger(UserSessionStore::class.java)
+
     fun findOrCreate(chatId: Long): UserSession {
-        return sessions.findById(chatId).orElse(UserSession(chatId = chatId))
+        val session = sessions.findById(chatId).orElse(UserSession(chatId = chatId))
+        log.debug(
+            "event=session_loaded chatId={} state={} hasPhone={} hasProjectName={} hasPurpose={}",
+            chatId,
+            session.state,
+            session.phone != null,
+            session.projectName != null,
+            session.purpose != null,
+        )
+        return session
     }
 
     fun save(session: UserSession) {
@@ -28,9 +40,19 @@ class UserSessionStore(
             purpose = session.purpose,
             updatedAt = session.updatedAt,
         )
+
+        log.info(
+            "event=session_saved chatId={} state={} hasPhone={} hasProjectName={} hasPurpose={}",
+            session.chatId,
+            session.state,
+            session.phone != null,
+            session.projectName != null,
+            session.purpose != null,
+        )
     }
 
     fun delete(chatId: Long) {
         sessions.deleteById(chatId)
+        log.info("event=session_deleted chatId={}", chatId)
     }
 }

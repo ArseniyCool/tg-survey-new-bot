@@ -37,6 +37,8 @@ class TelegramWebhookController(
         val chatId = update.message?.chatId
         val updateId = update.updateId.toLong()
 
+        log.info("event=webhook_received updateId={} chatId={}", updateId, chatId)
+
         if (!webhookSecurity.isConfigured()) {
             log.error("Webhook secret token не настроен: задайте TELEGRAM_WEBHOOK_SECRET перед запуском приложения")
             return HttpResponse.status(HttpStatus.FORBIDDEN)
@@ -58,6 +60,7 @@ class TelegramWebhookController(
         return try {
             val reply = surveyService.handle(update)
             processedUpdateStore.markCompleted(updateId)
+            log.info("event=webhook_processed updateId={} chatId={}", updateId, chatId)
             responder.ok(chatId, reply.text, reply.replyMarkup)
         } catch (e: Exception) {
             processedUpdateStore.release(updateId)
