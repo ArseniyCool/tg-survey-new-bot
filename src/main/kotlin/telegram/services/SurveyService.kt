@@ -1,4 +1,4 @@
-﻿package telegram.services
+package telegram.services
 
 /**
  * Основная логика опроса: принимает Telegram Update, обрабатывает команды и шаги опроса.
@@ -14,72 +14,42 @@ import telegram.enums.Answers
 import telegram.enums.Commands
 import telegram.model.BotReply
 import telegram.model.MutableBotReply
-import telegram.persistence.UserSession
-import telegram.persistence.UserSessionRepository
 import telegram.text.Messages
 
 @Singleton
 class SurveyService(
-    private val sessions: UserSessionRepository,
+    private val userSessionStore: UserSessionStore,
 ) {
     fun handle(update: Update): BotReply {
-        val incoming = update.message ?: return BotReply(text = Answers.DONT_UNDERSTAND.text)
-
-        val chatId = incoming.chatId
-        val contactPhone = incoming.contact?.phoneNumber
-        val incomingText = incoming.text
-
-        // Поддерживаем либо обычный текст, либо отправку контакта (телефон).
-        if (incomingText == null && contactPhone == null) {
+        val incoming = parseIncomingTelegramMessage(update) ?: run {
             return BotReply(text = Answers.DONT_UNDERSTAND.text)
         }
 
-        val rawText = (incomingText ?: contactPhone ?: return BotReply(text = Answers.DONT_UNDERSTAND.text)).trim()
-        val normalizedText = rawText.lowercase()
-
-        // Telegram (особенно в группах) может присылать команды вида "/start@MyBot",
-        // а также команды с параметрами: "/start foo". Для сравнения команд выделяем "чистую" команду.
-        val normalizedCommand = if (normalizedText.startsWith("/")) {
-            normalizedText
-                .split(Regex("\\s+"), limit = 2)[0]
-                .substringBefore("@")
-        } else {
-            normalizedText
-        }
-
+        val chatId = incoming.chatId
+        val rawText = incoming.rawText
+        val normalizedCommand = incoming.normalizedCommand
         val toUser = MutableBotReply()
 
-        val sessionOpt = sessions.findById(chatId)
-        val sessionExists = sessionOpt.isPresent
-        val session = sessionOpt.orElse(UserSession(chatId = chatId))
+        val loadedSession = userSessionStore.findOrCreate(chatId)
+        val session = loadedSession.session
 
-        fun persistSession(updated: UserSession) {
-            // Для сущностей с "назначаемым" PK (chat_id) save() может попытаться INSERT,
-            // поэтому при наличии записи делаем UPDATE.
-            if (sessionExists) {
-                sessions.update(updated)
-            } else {
-                sessions.save(updated)
-            }
-        }
-
-        // /forget: удалить данные пользователя (сессия) и начать заново.
+        // /forget: удалить данные пользователя и начать заново.
         if (normalizedCommand == Commands.FORGET.text) {
-            sessions.deleteById(chatId)
+            userSessionStore.delete(chatId)
             toUser.text = Messages.forgetOk()
             return toUser.toImmutable()
         }
 
         // 1) Глобальные команды.
-        val global = handleGlobalCommands(normalizedCommand, session, toUser)
+        val global = handleGlobalCommands(normalizedCommand ?: rawText.lowercase(), session, toUser)
         if (global.handled) {
-            global.updatedSession?.let { persistSession(it) }
+            global.updatedSession?.let { userSessionStore.save(it, loadedSession.existed) }
             return toUser.toImmutable()
         }
 
         // Любое сообщение, начинающееся с '/', считаем командой. Если мы здесь — команда неизвестна.
         // Это автоматически запрещает вводить "название проекта" / "назначение", начинающиеся с '/'.
-        if (normalizedCommand.startsWith("/")) {
+        if (normalizedCommand != null) {
             toUser.text = Messages.unknownCommand(normalizedCommand)
             return toUser.toImmutable()
         }
@@ -87,7 +57,7 @@ class SurveyService(
         // 2) Ввод по шагам (состояниям).
         val state = handleStatesCommands(rawText, session, toUser)
         if (state.handled) {
-            state.updatedSession?.let { persistSession(it) }
+            state.updatedSession?.let { userSessionStore.save(it, loadedSession.existed) }
             return toUser.toImmutable()
         }
 
@@ -96,4 +66,3 @@ class SurveyService(
         return toUser.toImmutable()
     }
 }
-

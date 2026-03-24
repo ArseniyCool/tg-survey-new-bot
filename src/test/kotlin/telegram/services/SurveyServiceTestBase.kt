@@ -3,7 +3,8 @@ package telegram.services
 /**
  * Общая база для тестов SurveyService.
  *
- * Здесь лежит настройка сервиса и хелперы для сборки Update/Message, чтобы тесты были короче и читабельнее.
+ * Здесь лежит настройка мок-репозитория и хелперы для сборки Telegram Update,
+ * чтобы тесты были короче и читались проще.
  */
 
 import io.mockk.every
@@ -20,6 +21,7 @@ abstract class SurveyServiceTestBase {
 
     protected lateinit var service: SurveyService
     protected lateinit var sessions: UserSessionRepository
+    protected lateinit var userSessionStore: UserSessionStore
 
     protected val sessionsStore: MutableMap<Long, UserSession> = mutableMapOf()
 
@@ -37,18 +39,21 @@ abstract class SurveyServiceTestBase {
             val id = firstArg<Long>()
             Optional.ofNullable(sessionsStore[id])
         }
+
         every { sessions.save(any()) } answers {
             val session = firstArg<UserSession>()
             sessionsStore[session.chatId] = session
             session
         }
+
         every { sessions.update(any()) } answers {
             val session = firstArg<UserSession>()
             sessionsStore[session.chatId] = session
             session
         }
 
-        service = SurveyService(sessions)
+        userSessionStore = UserSessionStore(sessions)
+        service = SurveyService(userSessionStore)
     }
 
     protected fun mockTelegramUpdate(text: String, chatId: Long = 1L): Update {

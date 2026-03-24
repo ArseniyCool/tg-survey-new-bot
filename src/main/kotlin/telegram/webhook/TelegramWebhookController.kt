@@ -16,8 +16,6 @@ import io.micronaut.http.annotation.Controller
 import io.micronaut.http.annotation.Header
 import io.micronaut.http.annotation.Post
 import org.slf4j.LoggerFactory
-import org.telegram.telegrambots.meta.api.methods.ParseMode
-import org.telegram.telegrambots.meta.api.methods.send.SendMessage
 import org.telegram.telegrambots.meta.api.objects.Update
 import telegram.services.SurveyService
 
@@ -25,6 +23,7 @@ import telegram.services.SurveyService
 class TelegramWebhookController(
     private val surveyService: SurveyService,
     private val webhookSecurity: TelegramWebhookSecurity,
+    private val responder: TelegramWebhookResponder,
 ) {
     private val log = LoggerFactory.getLogger(TelegramWebhookController::class.java)
 
@@ -50,32 +49,12 @@ class TelegramWebhookController(
 
         return try {
             val reply = surveyService.handle(update)
-            val text = reply.text
-
-            // Если мы не можем ответить (нет message/chat), просто подтверждаем (ack).
-            if (chatId == null || text.isNullOrBlank()) {
-                HttpResponse.ok()
-            } else {
-                HttpResponse.ok(
-                    SendMessage(chatId.toString(), text).apply {
-                        parseMode = ParseMode.HTML
-                        replyMarkup = reply.replyMarkup
-                    }
-                )
-            }
+            responder.ok(chatId, reply.text, reply.replyMarkup)
         } catch (e: Exception) {
             log.error("Ошибка при обработке входящего webhook-обновления от Telegram", e)
 
             // Даже при ошибках бизнес-логики возвращаем 200 OK, чтобы Telegram не ретраил update бесконечно.
-            if (chatId == null) {
-                HttpResponse.ok()
-            } else {
-                HttpResponse.ok(
-                    SendMessage(chatId.toString(), "⚠️ Произошла ошибка. Попробуйте позже.").apply {
-                        parseMode = ParseMode.HTML
-                    }
-                )
-            }
+            responder.ok(chatId, "⚠️ Произошла ошибка. Попробуйте позже.")
         }
     }
 }

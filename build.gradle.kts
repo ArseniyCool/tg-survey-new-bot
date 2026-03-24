@@ -13,6 +13,7 @@ repositories {
 dependencies {
     // Database
     implementation("io.micronaut.data:micronaut-data-jdbc:4.6.0")
+    implementation("io.micronaut.flyway:micronaut-flyway:7.6.0")
     implementation("io.micronaut.sql:micronaut-jdbc-hikari:5.3.0")
     runtimeOnly("org.postgresql:postgresql:42.7.3")
     runtimeOnly("org.yaml:snakeyaml:2.2")

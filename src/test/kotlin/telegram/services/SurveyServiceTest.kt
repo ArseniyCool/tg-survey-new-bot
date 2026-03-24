@@ -1,0 +1,153 @@
+package telegram.services
+
+/**
+ * Сквозные тесты SurveyService.
+ */
+
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNotNull
+import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.Test
+import telegram.enums.Answers
+import telegram.enums.Commands
+import telegram.enums.Examples
+import telegram.enums.UserStates
+
+class SurveyServiceTest : SurveyServiceTestBase() {
+
+    @Test
+    fun `project name should ask for purpose`() {
+        service.handle(mockTelegramUpdate(Commands.START.text))
+        service.handle(mockTelegramUpdate(Examples.CORRECT_NUMBER.text))
+
+        val response = service.handle(mockTelegramUpdate(Examples.PROJECT.text))
+        val txt = response.text ?: ""
+
+        assertTrue(txt.contains(Examples.PROJECT.text))
+        assertTrue(txt.contains("<code>"))
+        assertTrue(txt.contains("назначение"))
+    }
+
+    @Test
+    fun `purpose should finish survey and save all fields`() {
+        service.handle(mockTelegramUpdate(Commands.START.text))
+        service.handle(mockTelegramUpdate(Examples.CORRECT_NUMBER.text))
+        service.handle(mockTelegramUpdate(Examples.PROJECT.text))
+
+        val response = service.handle(mockTelegramUpdate(Examples.PURPOSE.text))
+        val txt = response.text ?: ""
+
+        assertTrue(txt.contains("Спасибо за заполнение анкеты"))
+        assertTrue(txt.contains("Телефон:"))
+        assertTrue(txt.contains(Examples.CORRECT_NUMBER.text))
+        assertTrue(txt.contains("Проект:"))
+        assertTrue(txt.contains(Examples.PROJECT.text))
+        assertTrue(txt.contains("Назначение:"))
+        assertTrue(txt.contains(Examples.PURPOSE.text))
+        assertTrue(txt.contains("<code>"))
+        assertTrue(txt.contains("/cancel"))
+        assertTrue(txt.contains("/start"))
+
+        val session = sessionsStore[1L]
+        assertNotNull(session)
+        assertEquals(UserStates.COMPLETED, session!!.state)
+        assertEquals(Examples.CORRECT_NUMBER.text, session.phone)
+        assertEquals(Examples.PROJECT.text, session.projectName)
+        assertEquals(Examples.PURPOSE.text, session.purpose)
+    }
+
+    @Test
+    fun `project and purpose should preserve original casing`() {
+        service.handle(mockTelegramUpdate("/StArT"))
+        service.handle(mockTelegramUpdate(Examples.CORRECT_NUMBER.text))
+
+        val projectInput = "My COOL Project"
+        service.handle(mockTelegramUpdate(projectInput))
+
+        val sessionAfterProject = sessionsStore[1L]
+        assertNotNull(sessionAfterProject)
+        assertEquals(projectInput, sessionAfterProject!!.projectName)
+
+        val purposeInput = "For Internal Automation"
+        service.handle(mockTelegramUpdate(purposeInput))
+
+        val sessionAfterPurpose = sessionsStore[1L]
+        assertNotNull(sessionAfterPurpose)
+        assertEquals(purposeInput, sessionAfterPurpose!!.purpose)
+        assertEquals(UserStates.COMPLETED, sessionAfterPurpose.state)
+    }
+
+    @Test
+    fun `emoji in project name should be rejected`() {
+        service.handle(mockTelegramUpdate(Commands.START.text))
+        service.handle(mockTelegramUpdate(Examples.CORRECT_NUMBER.text))
+
+        val response = service.handle(mockTelegramUpdate("My project \uD83D\uDE80"))
+
+        assertEquals(Answers.EMOJI_NOT_ALLOWED.text, response.text)
+        assertEquals(UserStates.WAITING_FOR_PROJECT_NAME, sessionsStore[1L]?.state)
+        assertEquals(null, sessionsStore[1L]?.projectName)
+    }
+
+    @Test
+    fun `emoji in purpose should be rejected`() {
+        service.handle(mockTelegramUpdate(Commands.START.text))
+        service.handle(mockTelegramUpdate(Examples.CORRECT_NUMBER.text))
+        service.handle(mockTelegramUpdate(Examples.PROJECT.text))
+
+        val response = service.handle(mockTelegramUpdate("Для \uD83D\uDE80"))
+
+        assertEquals(Answers.EMOJI_NOT_ALLOWED.text, response.text)
+        assertEquals(UserStates.WAITING_FOR_PURPOSE, sessionsStore[1L]?.state)
+        assertEquals(null, sessionsStore[1L]?.purpose)
+    }
+
+    @Test
+    fun `project name length should be validated`() {
+        service.handle(mockTelegramUpdate(Commands.START.text))
+        service.handle(mockTelegramUpdate(Examples.CORRECT_NUMBER.text))
+
+        val tooShort = service.handle(mockTelegramUpdate("Abcd"))
+        assertEquals(Answers.PROJECT_NAME_LENGTH_INVALID.text, tooShort.text)
+        assertEquals(UserStates.WAITING_FOR_PROJECT_NAME, sessionsStore[1L]?.state)
+
+        val tooLongName = "A".repeat(31)
+        val tooLong = service.handle(mockTelegramUpdate(tooLongName))
+        assertEquals(Answers.PROJECT_NAME_LENGTH_INVALID.text, tooLong.text)
+        assertEquals(UserStates.WAITING_FOR_PROJECT_NAME, sessionsStore[1L]?.state)
+    }
+
+    @Test
+    fun `purpose length should be validated`() {
+        service.handle(mockTelegramUpdate(Commands.START.text))
+        service.handle(mockTelegramUpdate(Examples.CORRECT_NUMBER.text))
+        service.handle(mockTelegramUpdate(Examples.PROJECT.text))
+
+        val tooShort = service.handle(mockTelegramUpdate("Abcd"))
+        assertEquals(Answers.PURPOSE_LENGTH_INVALID.text, tooShort.text)
+        assertEquals(UserStates.WAITING_FOR_PURPOSE, sessionsStore[1L]?.state)
+
+        val tooLongPurpose = "A".repeat(101)
+        val tooLong = service.handle(mockTelegramUpdate(tooLongPurpose))
+        assertEquals(Answers.PURPOSE_LENGTH_INVALID.text, tooLong.text)
+        assertEquals(UserStates.WAITING_FOR_PURPOSE, sessionsStore[1L]?.state)
+    }
+
+    @Test
+    fun `full survey flow should work`() {
+        val startResponse = service.handle(mockTelegramUpdate(Commands.START.text))
+        assertEquals(Answers.WELCOME.text, startResponse.text)
+
+        val phoneResponse = service.handle(mockTelegramUpdate(Examples.CORRECT_NUMBER.text))
+        assertTrue((phoneResponse.text ?: "").contains(Examples.CORRECT_NUMBER.text))
+
+        val projectResponse = service.handle(mockTelegramUpdate(Examples.PROJECT.text))
+        assertTrue((projectResponse.text ?: "").contains(Examples.PROJECT.text))
+
+        val purposeResponse = service.handle(mockTelegramUpdate(Examples.PURPOSE.text))
+        assertTrue((purposeResponse.text ?: "").contains("Спасибо за заполнение анкеты"))
+
+        val fallbackResponse = service.handle(mockTelegramUpdate(Examples.SOMETHING.text))
+        assertEquals(Answers.DONT_UNDERSTAND.text, fallbackResponse.text)
+    }
+}

@@ -5,3 +5,8 @@ datasources:
     username: ${DB_USERNAME:postgres}
     password: ${DB_PASSWORD:your_password}
     dialect: POSTGRES
+
+flyway:
+  datasources:
+    default:
+      enabled: true
