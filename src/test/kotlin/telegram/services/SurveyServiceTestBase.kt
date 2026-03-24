@@ -3,8 +3,7 @@ package telegram.services
 /**
  * Общая база для тестов SurveyService.
  *
- * Здесь лежит настройка мок-репозитория и хелперы для сборки Telegram Update,
- * чтобы тесты были короче и читались проще.
+ * Здесь лежит настройка сервиса и хелперы для сборки Update/Message, чтобы тесты были короче и читабельнее.
  */
 
 import io.mockk.every
@@ -21,7 +20,6 @@ abstract class SurveyServiceTestBase {
 
     protected lateinit var service: SurveyService
     protected lateinit var sessions: UserSessionRepository
-    protected lateinit var userSessionStore: UserSessionStore
 
     protected val sessionsStore: MutableMap<Long, UserSession> = mutableMapOf()
 
@@ -39,39 +37,21 @@ abstract class SurveyServiceTestBase {
             val id = firstArg<Long>()
             Optional.ofNullable(sessionsStore[id])
         }
-
-        every {
-            sessions.upsert(
-                any(),
-                any(),
-                any(),
-                any(),
-                any(),
-                any(),
-            )
-        } answers {
-            val chatId = firstArg<Long>()
-            val state = secondArg<String?>()?.let { telegram.enums.UserStates.valueOf(it) }
-            val phone = arg<String?>(2)
-            val projectName = arg<String?>(3)
-            val purpose = arg<String?>(4)
-            val updatedAt = arg<java.time.Instant>(5)
-
-            sessionsStore[chatId] = UserSession(
-                chatId = chatId,
-                state = state,
-                phone = phone,
-                projectName = projectName,
-                purpose = purpose,
-                updatedAt = updatedAt,
-            )
+        every { sessions.save(any()) } answers {
+            val session = firstArg<UserSession>()
+            sessionsStore[session.chatId] = session
+            session
+        }
+        every { sessions.update(any()) } answers {
+            val session = firstArg<UserSession>()
+            sessionsStore[session.chatId] = session
+            session
         }
 
-        userSessionStore = UserSessionStore(sessions)
-        service = SurveyService(userSessionStore)
+        service = SurveyService(sessions)
     }
 
-    protected fun mockTelegramUpdate(text: String, chatId: Long = 1L, updateId: Int = 1): Update {
+    protected fun mockTelegramUpdate(text: String, chatId: Long = 1L): Update {
         val update = mockk<Update>()
         val message = mockk<Message>()
 
@@ -79,12 +59,11 @@ abstract class SurveyServiceTestBase {
         every { message.contact } returns null
         every { message.chatId } returns chatId
         every { update.message } returns message
-        every { update.updateId } returns updateId
 
         return update
     }
 
-    protected fun mockTelegramContactUpdate(phone: String, chatId: Long = 1L, updateId: Int = 1): Update {
+    protected fun mockTelegramContactUpdate(phone: String, chatId: Long = 1L): Update {
         val update = mockk<Update>()
         val message = mockk<Message>()
         val contact = mockk<Contact>()
@@ -94,7 +73,6 @@ abstract class SurveyServiceTestBase {
         every { message.contact } returns contact
         every { message.chatId } returns chatId
         every { update.message } returns message
-        every { update.updateId } returns updateId
 
         return update
     }

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="DataSourcePerFileMappings">
+    <file url="file://$PROJECT_DIR$/src/main/kotlin/telegram/services/ProcessedUpdateStore.kt" value="135f4673-31a2-43ef-84f6-eca8de77eae4" />
+  </component>
+</project>

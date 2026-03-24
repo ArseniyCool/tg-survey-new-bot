@@ -11,14 +11,8 @@ repositories {
 }
 
 dependencies {
-    val flywayVersion = "11.16.0"
-    val micronautVersion = "4.7.2"
-
     // Database
     implementation("io.micronaut.data:micronaut-data-jdbc:4.6.0")
-    implementation("io.micronaut.flyway:micronaut-flyway:7.6.0")
-    implementation("org.flywaydb:flyway-core:$flywayVersion")
-    runtimeOnly("org.flywaydb:flyway-database-postgresql:$flywayVersion")
     implementation("io.micronaut.sql:micronaut-jdbc-hikari:5.3.0")
     runtimeOnly("org.postgresql:postgresql:42.7.3")
     runtimeOnly("org.yaml:snakeyaml:2.2")
@@ -28,24 +22,22 @@ dependencies {
     implementation("org.telegram:telegrambots:6.8.0")
 
     // Micronaut runtime + HTTP server
-    implementation("io.micronaut:micronaut-runtime:$micronautVersion")
-    implementation("io.micronaut:micronaut-http-server-netty:$micronautVersion")
-    implementation("io.micronaut:micronaut-jackson-databind:$micronautVersion")
+    implementation("io.micronaut:micronaut-runtime:4.6.1")
+    implementation("io.micronaut:micronaut-http-server-netty:4.6.1")
+    implementation("io.micronaut:micronaut-jackson-databind:4.6.1")
     implementation("jakarta.inject:jakarta.inject-api:2.0.1")
 
     // KAPT: DI container generation
-    kapt("io.micronaut:micronaut-inject-java:$micronautVersion")
-    kapt("io.micronaut:micronaut-inject-kotlin:$micronautVersion")
+    kapt("io.micronaut:micronaut-inject-java:4.6.1")
+    kapt("io.micronaut:micronaut-inject-kotlin:4.6.1")
 
     // Testing
-    testImplementation("io.micronaut.test:micronaut-test-junit5:4.7.0")
+    testImplementation("io.micronaut.test:micronaut-test-junit5:4.6.1")
     testImplementation("io.mockk:mockk:1.13.8")
     testImplementation(kotlin("test"))
-    testRuntimeOnly("com.h2database:h2:2.2.224")
 
     // Logging
-    implementation("ch.qos.logback:logback-classic:1.5.32")
-    implementation("net.logstash.logback:logstash-logback-encoder:8.1")
+    implementation("org.slf4j:slf4j-simple:2.0.9")
 }
 
 kotlin {

@@ -1,13 +1,12 @@
-package telegram.services
+﻿package telegram.services
 
 /**
  * Основная логика опроса: принимает Telegram Update, обрабатывает команды и шаги опроса.
  *
- * Состояние и введенные пользователем данные хранятся в БД в таблице `user_sessions`.
+ * Состояние и введенные пользователем данные хранятся в БД в одной таблице `user_sessions`.
  */
 
 import jakarta.inject.Singleton
-import org.slf4j.LoggerFactory
 import org.telegram.telegrambots.meta.api.objects.Update
 import telegram.commands.handleGlobalCommands
 import telegram.commands.handleStatesCommands
@@ -15,107 +14,86 @@ import telegram.enums.Answers
 import telegram.enums.Commands
 import telegram.model.BotReply
 import telegram.model.MutableBotReply
+import telegram.persistence.UserSession
+import telegram.persistence.UserSessionRepository
 import telegram.text.Messages
 
 @Singleton
 class SurveyService(
-    private val userSessionStore: UserSessionStore,
+    private val sessions: UserSessionRepository,
 ) {
-    private val log = LoggerFactory.getLogger(SurveyService::class.java)
-
     fun handle(update: Update): BotReply {
-        val updateId = runCatching { update.updateId.toLong() }.getOrDefault(-1L)
-        val incoming = parseIncomingTelegramMessage(update) ?: run {
-            log.debug("event=update_ignored reason=unsupported_payload updateId={}", updateId)
+        val incoming = update.message ?: return BotReply(text = Answers.DONT_UNDERSTAND.text)
+
+        val chatId = incoming.chatId
+        val contactPhone = incoming.contact?.phoneNumber
+        val incomingText = incoming.text
+
+        // Поддерживаем либо обычный текст, либо отправку контакта (телефон).
+        if (incomingText == null && contactPhone == null) {
             return BotReply(text = Answers.DONT_UNDERSTAND.text)
         }
 
-        val chatId = incoming.chatId
-        val rawText = incoming.rawText
-        val normalizedCommand = incoming.normalizedCommand
+        val rawText = (incomingText ?: contactPhone ?: return BotReply(text = Answers.DONT_UNDERSTAND.text)).trim()
+        val normalizedText = rawText.lowercase()
+
+        // Telegram (особенно в группах) может присылать команды вида "/start@MyBot",
+        // а также команды с параметрами: "/start foo". Для сравнения команд выделяем "чистую" команду.
+        val normalizedCommand = if (normalizedText.startsWith("/")) {
+            normalizedText
+                .split(Regex("\\s+"), limit = 2)[0]
+                .substringBefore("@")
+        } else {
+            normalizedText
+        }
+
         val toUser = MutableBotReply()
-        val session = userSessionStore.findOrCreate(chatId)
 
-        log.info(
-            "event=update_received updateId={} chatId={} state={} isCommand={}",
-            updateId,
-            chatId,
-            session.state,
-            normalizedCommand != null,
-        )
+        val sessionOpt = sessions.findById(chatId)
+        val sessionExists = sessionOpt.isPresent
+        val session = sessionOpt.orElse(UserSession(chatId = chatId))
 
+        fun persistSession(updated: UserSession) {
+            // Для сущностей с "назначаемым" PK (chat_id) save() может попытаться INSERT,
+            // поэтому при наличии записи делаем UPDATE.
+            if (sessionExists) {
+                sessions.update(updated)
+            } else {
+                sessions.save(updated)
+            }
+        }
+
+        // /forget: удалить данные пользователя (сессия) и начать заново.
         if (normalizedCommand == Commands.FORGET.text) {
-            userSessionStore.delete(chatId)
-            log.info("event=user_data_deleted updateId={} chatId={}", updateId, chatId)
+            sessions.deleteById(chatId)
             toUser.text = Messages.forgetOk()
             return toUser.toImmutable()
         }
 
-        val global = handleGlobalCommands(normalizedCommand ?: rawText.lowercase(), session, toUser)
+        // 1) Глобальные команды.
+        val global = handleGlobalCommands(normalizedCommand, session, toUser)
         if (global.handled) {
-            global.updatedSession?.let { updated ->
-                userSessionStore.save(updated)
-                logStateTransition("global_command_handled", updateId, chatId, session.state?.name, updated.state?.name)
-            } ?: log.info(
-                "event=global_command_handled updateId={} chatId={} command={}",
-                updateId,
-                chatId,
-                normalizedCommand ?: rawText.lowercase(),
-            )
-
+            global.updatedSession?.let { persistSession(it) }
             return toUser.toImmutable()
         }
 
-        if (normalizedCommand != null) {
-            log.warn(
-                "event=unknown_command updateId={} chatId={} command={}",
-                updateId,
-                chatId,
-                normalizedCommand,
-            )
+        // Любое сообщение, начинающееся с '/', считаем командой. Если мы здесь — команда неизвестна.
+        // Это автоматически запрещает вводить "название проекта" / "назначение", начинающиеся с '/'.
+        if (normalizedCommand.startsWith("/")) {
             toUser.text = Messages.unknownCommand(normalizedCommand)
             return toUser.toImmutable()
         }
 
+        // 2) Ввод по шагам (состояниям).
         val state = handleStatesCommands(rawText, session, toUser)
         if (state.handled) {
-            state.updatedSession?.let { updated ->
-                userSessionStore.save(updated)
-                logStateTransition("state_input_handled", updateId, chatId, session.state?.name, updated.state?.name)
-            } ?: log.info(
-                "event=state_input_handled updateId={} chatId={} state={} persisted=false",
-                updateId,
-                chatId,
-                session.state,
-            )
-
+            state.updatedSession?.let { persistSession(it) }
             return toUser.toImmutable()
         }
 
-        log.info(
-            "event=fallback_response updateId={} chatId={} state={}",
-            updateId,
-            chatId,
-            session.state,
-        )
+        // 3) Запасной вариант (если ничего не подошло).
         toUser.text = Answers.DONT_UNDERSTAND.text
         return toUser.toImmutable()
     }
-
-    private fun logStateTransition(
-        event: String,
-        updateId: Long,
-        chatId: Long,
-        fromState: String?,
-        toState: String?,
-    ) {
-        log.info(
-            "event={} updateId={} chatId={} fromState={} toState={}",
-            event,
-            updateId,
-            chatId,
-            fromState ?: "null",
-            toState ?: "null",
-        )
-    }
 }
+
