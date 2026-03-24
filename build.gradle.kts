@@ -39,7 +39,8 @@ dependencies {
     testRuntimeOnly("com.h2database:h2:2.2.224")
 
     // Logging
-    implementation("org.slf4j:slf4j-simple:2.0.9")
+    implementation("ch.qos.logback:logback-classic:1.5.32")
+    implementation("net.logstash.logback:logstash-logback-encoder:8.1")
 }
 
 kotlin {
