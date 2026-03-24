@@ -23,6 +23,20 @@ class TelegramWebhookSecurityTest {
     }
 
     @Test
+    fun `configured security should accept matching path token`() {
+        val security = TelegramWebhookSecurity("very-secret-token")
+
+        assertTrue(security.isValid(null, "very-secret-token"))
+    }
+
+    @Test
+    fun `configured security should reject wrong header and wrong path token`() {
+        val security = TelegramWebhookSecurity("very-secret-token")
+
+        assertFalse(security.isValid("wrong-token", "also-wrong"))
+    }
+
+    @Test
     fun `blank configured token should disable validation and reject requests`() {
         val security = TelegramWebhookSecurity("")
 

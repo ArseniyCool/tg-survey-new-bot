@@ -15,6 +15,7 @@ import io.micronaut.http.annotation.Body
 import io.micronaut.http.annotation.Controller
 import io.micronaut.http.annotation.Header
 import io.micronaut.http.annotation.Post
+import io.micronaut.http.annotation.PathVariable
 import org.slf4j.LoggerFactory
 import org.telegram.telegrambots.meta.api.objects.Update
 import telegram.services.ProcessedUpdateStore
@@ -34,6 +35,23 @@ class TelegramWebhookController(
         @Body update: Update,
         @Header("X-Telegram-Bot-Api-Secret-Token") secretTokenHeader: String?,
     ): HttpResponse<Any> {
+        return handleWebhook(update, secretTokenHeader, null)
+    }
+
+    @Post(uri = "/webhook/{pathSecretToken}", consumes = [MediaType.APPLICATION_JSON], produces = [MediaType.APPLICATION_JSON])
+    fun webhookWithPathSecret(
+        @Body update: Update,
+        @PathVariable pathSecretToken: String,
+        @Header("X-Telegram-Bot-Api-Secret-Token") secretTokenHeader: String?,
+    ): HttpResponse<Any> {
+        return handleWebhook(update, secretTokenHeader, pathSecretToken)
+    }
+
+    private fun handleWebhook(
+        update: Update,
+        secretTokenHeader: String?,
+        pathSecretToken: String?,
+    ): HttpResponse<Any> {
         val chatId = update.message?.chatId
         val updateId = update.updateId.toLong()
 
@@ -44,26 +62,27 @@ class TelegramWebhookController(
             return HttpResponse.status(HttpStatus.FORBIDDEN)
         }
 
-        if (!webhookSecurity.isValid(secretTokenHeader)) {
+        if (!webhookSecurity.isValid(secretTokenHeader, pathSecretToken)) {
             log.warn(
-                "Отклонен запрос к webhook с невалидным secret token. remote-header-present={}",
-                !secretTokenHeader.isNullOrBlank()
+                "Отклонен запрос к webhook с невалидным secret token. remote-header-present={} path-secret-present={}",
+                !secretTokenHeader.isNullOrBlank(),
+                !pathSecretToken.isNullOrBlank()
             )
             return HttpResponse.status(HttpStatus.FORBIDDEN)
         }
 
-        if (!processedUpdateStore.tryAcquire(updateId)) {
-            log.info("Повторный update_id={} проигнорирован", updateId)
-            return responder.ok(chatId, null)
-        }
-
         return try {
+            if (!processedUpdateStore.tryAcquire(updateId)) {
+                log.info("Повторный update_id={} проигнорирован", updateId)
+                return responder.ok(chatId, null)
+            }
+
             val reply = surveyService.handle(update)
             processedUpdateStore.markCompleted(updateId)
             log.info("event=webhook_processed updateId={} chatId={}", updateId, chatId)
             responder.ok(chatId, reply.text, reply.replyMarkup)
         } catch (e: Exception) {
-            processedUpdateStore.release(updateId)
+            runCatching { processedUpdateStore.release(updateId) }
             log.error("Ошибка при обработке входящего webhook-обновления от Telegram", e)
 
             // Даже при ошибках бизнес-логики возвращаем 200 OK, чтобы Telegram не ретраил update бесконечно.
