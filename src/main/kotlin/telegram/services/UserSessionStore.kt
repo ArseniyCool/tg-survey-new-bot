@@ -4,7 +4,7 @@ package telegram.services
  * Тонкая прослойка над репозиторием пользовательских сессий.
  *
  * Нужна, чтобы бизнес-логика опроса не зависела напрямую от деталей сохранения:
- * как получить сессию, когда делать save/update и как удалить данные пользователя.
+ * как получить сессию, как надежно сохранить ее в БД и как удалить данные пользователя.
  */
 
 import jakarta.inject.Singleton
@@ -15,30 +15,22 @@ import telegram.persistence.UserSessionRepository
 class UserSessionStore(
     private val sessions: UserSessionRepository,
 ) {
-    fun findOrCreate(chatId: Long): UserSessionLoadResult {
-        val sessionOpt = sessions.findById(chatId)
-        val session = sessionOpt.orElse(UserSession(chatId = chatId))
-
-        return UserSessionLoadResult(
-            session = session,
-            existed = sessionOpt.isPresent,
-        )
+    fun findOrCreate(chatId: Long): UserSession {
+        return sessions.findById(chatId).orElse(UserSession(chatId = chatId))
     }
 
-    fun save(session: UserSession, existed: Boolean) {
-        if (existed) {
-            sessions.update(session)
-        } else {
-            sessions.save(session)
-        }
+    fun save(session: UserSession) {
+        sessions.upsert(
+            chatId = session.chatId,
+            state = session.state?.name,
+            phone = session.phone,
+            projectName = session.projectName,
+            purpose = session.purpose,
+            updatedAt = session.updatedAt,
+        )
     }
 
     fun delete(chatId: Long) {
         sessions.deleteById(chatId)
     }
 }
-
-data class UserSessionLoadResult(
-    val session: UserSession,
-    val existed: Boolean,
-)

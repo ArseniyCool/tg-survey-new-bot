@@ -4,11 +4,11 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertFalse
-import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
+import telegram.enums.UserStates
 import telegram.persistence.UserSession
 import telegram.persistence.UserSessionRepository
+import java.time.Instant
 import java.util.Optional
 
 class UserSessionStoreTest {
@@ -23,8 +23,7 @@ class UserSessionStoreTest {
 
         val result = store.findOrCreate(7L)
 
-        assertTrue(result.existed)
-        assertEquals(existing, result.session)
+        assertEquals(existing, result)
     }
 
     @Test
@@ -33,31 +32,34 @@ class UserSessionStoreTest {
 
         val result = store.findOrCreate(8L)
 
-        assertFalse(result.existed)
-        assertEquals(8L, result.session.chatId)
-        assertEquals(null, result.session.state)
+        assertEquals(8L, result.chatId)
+        assertEquals(null, result.state)
     }
 
     @Test
-    fun `save should call insert for new session`() {
-        val session = UserSession(chatId = 1L)
-        every { repository.save(session) } returns session
+    fun `save should call repository upsert`() {
+        val updatedAt = Instant.now()
+        val session = UserSession(
+            chatId = 1L,
+            state = UserStates.WAITING_FOR_PROJECT_NAME,
+            phone = "89173967903",
+            projectName = "Project",
+            purpose = "Purpose",
+            updatedAt = updatedAt,
+        )
 
-        store.save(session, existed = false)
+        store.save(session)
 
-        verify(exactly = 1) { repository.save(session) }
-        verify(exactly = 0) { repository.update(any()) }
-    }
-
-    @Test
-    fun `save should call update for existing session`() {
-        val session = UserSession(chatId = 1L)
-        every { repository.update(session) } returns session
-
-        store.save(session, existed = true)
-
-        verify(exactly = 1) { repository.update(session) }
-        verify(exactly = 0) { repository.save(any()) }
+        verify(exactly = 1) {
+            repository.upsert(
+                1L,
+                UserStates.WAITING_FOR_PROJECT_NAME.name,
+                "89173967903",
+                "Project",
+                "Purpose",
+                updatedAt,
+            )
+        }
     }
 
     @Test

@@ -36,6 +36,7 @@ dependencies {
     testImplementation("io.micronaut.test:micronaut-test-junit5:4.6.1")
     testImplementation("io.mockk:mockk:1.13.8")
     testImplementation(kotlin("test"))
+    testRuntimeOnly("com.h2database:h2:2.2.224")
 
     // Logging
     implementation("org.slf4j:slf4j-simple:2.0.9")

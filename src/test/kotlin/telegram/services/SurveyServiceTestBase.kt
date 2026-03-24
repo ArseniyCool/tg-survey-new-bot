@@ -40,23 +40,38 @@ abstract class SurveyServiceTestBase {
             Optional.ofNullable(sessionsStore[id])
         }
 
-        every { sessions.save(any()) } answers {
-            val session = firstArg<UserSession>()
-            sessionsStore[session.chatId] = session
-            session
-        }
+        every {
+            sessions.upsert(
+                any(),
+                any(),
+                any(),
+                any(),
+                any(),
+                any(),
+            )
+        } answers {
+            val chatId = firstArg<Long>()
+            val state = secondArg<String?>()?.let { telegram.enums.UserStates.valueOf(it) }
+            val phone = arg<String?>(2)
+            val projectName = arg<String?>(3)
+            val purpose = arg<String?>(4)
+            val updatedAt = arg<java.time.Instant>(5)
 
-        every { sessions.update(any()) } answers {
-            val session = firstArg<UserSession>()
-            sessionsStore[session.chatId] = session
-            session
+            sessionsStore[chatId] = UserSession(
+                chatId = chatId,
+                state = state,
+                phone = phone,
+                projectName = projectName,
+                purpose = purpose,
+                updatedAt = updatedAt,
+            )
         }
 
         userSessionStore = UserSessionStore(sessions)
         service = SurveyService(userSessionStore)
     }
 
-    protected fun mockTelegramUpdate(text: String, chatId: Long = 1L): Update {
+    protected fun mockTelegramUpdate(text: String, chatId: Long = 1L, updateId: Int = 1): Update {
         val update = mockk<Update>()
         val message = mockk<Message>()
 
@@ -64,11 +79,12 @@ abstract class SurveyServiceTestBase {
         every { message.contact } returns null
         every { message.chatId } returns chatId
         every { update.message } returns message
+        every { update.updateId } returns updateId
 
         return update
     }
 
-    protected fun mockTelegramContactUpdate(phone: String, chatId: Long = 1L): Update {
+    protected fun mockTelegramContactUpdate(phone: String, chatId: Long = 1L, updateId: Int = 1): Update {
         val update = mockk<Update>()
         val message = mockk<Message>()
         val contact = mockk<Contact>()
@@ -78,6 +94,7 @@ abstract class SurveyServiceTestBase {
         every { message.contact } returns contact
         every { message.chatId } returns chatId
         every { update.message } returns message
+        every { update.updateId } returns updateId
 
         return update
     }

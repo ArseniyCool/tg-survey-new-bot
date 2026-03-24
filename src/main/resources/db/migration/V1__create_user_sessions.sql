@@ -4,5 +4,11 @@ CREATE TABLE IF NOT EXISTS user_sessions (
     phone VARCHAR(32),
     project_name VARCHAR(255),
     purpose TEXT,
-    updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+    updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now()
+);
+
+CREATE TABLE IF NOT EXISTS processed_updates (
+    update_id BIGINT PRIMARY KEY,
+    status VARCHAR(32) NOT NULL,
+    updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now()
 );

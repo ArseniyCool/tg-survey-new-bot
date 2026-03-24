@@ -17,12 +17,14 @@ import io.micronaut.http.annotation.Header
 import io.micronaut.http.annotation.Post
 import org.slf4j.LoggerFactory
 import org.telegram.telegrambots.meta.api.objects.Update
+import telegram.services.ProcessedUpdateStore
 import telegram.services.SurveyService
 
 @Controller("/telegram")
 class TelegramWebhookController(
     private val surveyService: SurveyService,
     private val webhookSecurity: TelegramWebhookSecurity,
+    private val processedUpdateStore: ProcessedUpdateStore,
     private val responder: TelegramWebhookResponder,
 ) {
     private val log = LoggerFactory.getLogger(TelegramWebhookController::class.java)
@@ -33,6 +35,7 @@ class TelegramWebhookController(
         @Header("X-Telegram-Bot-Api-Secret-Token") secretTokenHeader: String?,
     ): HttpResponse<Any> {
         val chatId = update.message?.chatId
+        val updateId = update.updateId.toLong()
 
         if (!webhookSecurity.isConfigured()) {
             log.error("Webhook secret token не настроен: задайте TELEGRAM_WEBHOOK_SECRET перед запуском приложения")
@@ -47,10 +50,17 @@ class TelegramWebhookController(
             return HttpResponse.status(HttpStatus.FORBIDDEN)
         }
 
+        if (!processedUpdateStore.tryAcquire(updateId)) {
+            log.info("Повторный update_id={} проигнорирован", updateId)
+            return responder.ok(chatId, null)
+        }
+
         return try {
             val reply = surveyService.handle(update)
+            processedUpdateStore.markCompleted(updateId)
             responder.ok(chatId, reply.text, reply.replyMarkup)
         } catch (e: Exception) {
+            processedUpdateStore.release(updateId)
             log.error("Ошибка при обработке входящего webhook-обновления от Telegram", e)
 
             // Даже при ошибках бизнес-логики возвращаем 200 OK, чтобы Telegram не ретраил update бесконечно.
