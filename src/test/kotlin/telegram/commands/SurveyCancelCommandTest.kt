@@ -1,4 +1,4 @@
-package telegram.services
+package telegram.commands
 
 /**
  * Тесты поведения команды /cancel (шаг назад).
@@ -6,12 +6,14 @@ package telegram.services
 
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import telegram.enums.Commands
 import telegram.enums.Examples
 import telegram.enums.UserStates
+import telegram.services.SurveyServiceTestBase
 
-class SurveyServiceCancelTest : SurveyServiceTestBase() {
+class SurveyCancelCommandTest : SurveyServiceTestBase() {
 
     @Test
     fun `cancel from project step should go back to phone`() {
@@ -20,7 +22,7 @@ class SurveyServiceCancelTest : SurveyServiceTestBase() {
 
         val cancelResponse = service.handle(mockTelegramUpdate(Commands.CANCEL.text))
         val txt = cancelResponse.text ?: ""
-        assert(txt.contains("телефон"))
+        assertTrue(txt.contains("телефон"))
 
         val session = sessionsStore[1L]
         assertNotNull(session)
@@ -36,7 +38,7 @@ class SurveyServiceCancelTest : SurveyServiceTestBase() {
 
         val cancelResponse = service.handle(mockTelegramUpdate(Commands.CANCEL.text))
         val txt = cancelResponse.text ?: ""
-        assert(txt.contains("название проекта"))
+        assertTrue(txt.contains("название проекта"))
 
         val session = sessionsStore[1L]
         assertNotNull(session)
@@ -56,7 +58,7 @@ class SurveyServiceCancelTest : SurveyServiceTestBase() {
 
         val cancelResponse = service.handle(mockTelegramUpdate(Commands.CANCEL.text))
         val txt = cancelResponse.text ?: ""
-        assert(txt.contains("назначение"))
+        assertTrue(txt.contains("назначение"))
 
         val session = sessionsStore[1L]
         assertNotNull(session)
@@ -64,4 +66,3 @@ class SurveyServiceCancelTest : SurveyServiceTestBase() {
         assertEquals(null, session.purpose)
     }
 }
-

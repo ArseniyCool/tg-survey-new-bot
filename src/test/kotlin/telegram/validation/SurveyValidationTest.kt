@@ -1,7 +1,7 @@
-package telegram.services
+package telegram.validation
 
 /**
- * Тесты валидаций текстового ввода: эмодзи, длина, сохранение регистра.
+ * Тесты валидации текстового ввода: эмодзи, длина, сохранение регистра.
  */
 
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -11,15 +11,16 @@ import telegram.enums.Answers
 import telegram.enums.Commands
 import telegram.enums.Examples
 import telegram.enums.UserStates
+import telegram.services.SurveyServiceTestBase
 
-class SurveyServiceValidationTest : SurveyServiceTestBase() {
+class SurveyValidationTest : SurveyServiceTestBase() {
 
     @Test
     fun `emoji in project name should be rejected`() {
         service.handle(mockTelegramUpdate(Commands.START.text))
         service.handle(mockTelegramUpdate(Examples.CORRECT_NUMBER.text))
 
-        val response = service.handle(mockTelegramUpdate("My project 🚀"))
+        val response = service.handle(mockTelegramUpdate("My project \uD83D\uDE80"))
         assertEquals(Answers.EMOJI_NOT_ALLOWED.text, response.text)
         assertEquals(UserStates.WAITING_FOR_PROJECT_NAME, sessionsStore[1L]?.state)
 
@@ -34,7 +35,7 @@ class SurveyServiceValidationTest : SurveyServiceTestBase() {
         service.handle(mockTelegramUpdate(Examples.CORRECT_NUMBER.text))
         service.handle(mockTelegramUpdate(Examples.PROJECT.text))
 
-        val response = service.handle(mockTelegramUpdate("Для 🚀"))
+        val response = service.handle(mockTelegramUpdate("Для \uD83D\uDE80"))
         assertEquals(Answers.EMOJI_NOT_ALLOWED.text, response.text)
         assertEquals(UserStates.WAITING_FOR_PURPOSE, sessionsStore[1L]?.state)
 
@@ -100,7 +101,6 @@ class SurveyServiceValidationTest : SurveyServiceTestBase() {
         service.handle(mockTelegramUpdate(Commands.START.text))
         service.handle(mockTelegramUpdate(Examples.CORRECT_NUMBER.text))
 
-        // Сейчас ждем название проекта. Команда "/unknown" не должна сохраниться как projectName.
         val response = service.handle(mockTelegramUpdate("/unknown"))
         val txt = response.text ?: ""
         assertEquals(true, txt.contains("Команда"))

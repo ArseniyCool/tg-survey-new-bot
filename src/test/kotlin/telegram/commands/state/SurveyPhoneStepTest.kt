@@ -1,17 +1,19 @@
-package telegram.services
+package telegram.commands.state
 
 /**
- * Тесты шага телефона: ввод текстом, ввод через контакт, валидация.
+ * Тесты шага телефона: ввод текстом, ввод через контакт, валидация номера.
  */
 
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import telegram.enums.Answers
 import telegram.enums.Commands
 import telegram.enums.Examples
+import telegram.services.SurveyServiceTestBase
 
-class SurveyServicePhoneTest : SurveyServiceTestBase() {
+class SurveyPhoneStepTest : SurveyServiceTestBase() {
 
     @Test
     fun `correct phone number should return number saved`() {
@@ -19,10 +21,10 @@ class SurveyServicePhoneTest : SurveyServiceTestBase() {
 
         val phoneResponse = service.handle(mockTelegramUpdate(Examples.CORRECT_NUMBER.text))
         val txt = phoneResponse.text ?: ""
-        assert(txt.contains("телефон"))
-        assert(txt.contains(Examples.CORRECT_NUMBER.text))
-        assert(txt.contains("<code>"))
-        assert(txt.contains("название проекта"))
+        assertTrue(txt.contains("телефон"))
+        assertTrue(txt.contains(Examples.CORRECT_NUMBER.text))
+        assertTrue(txt.contains("<code>"))
+        assertTrue(txt.contains("название проекта"))
     }
 
     @Test
@@ -31,8 +33,8 @@ class SurveyServicePhoneTest : SurveyServiceTestBase() {
 
         val phoneResponse = service.handle(mockTelegramContactUpdate("+7 (917) 396-79-03"))
         val txt = phoneResponse.text ?: ""
-        assert(txt.contains("89173967903"))
-        assert(txt.contains("<code>"))
+        assertTrue(txt.contains("89173967903"))
+        assertTrue(txt.contains("<code>"))
 
         val session = sessionsStore[1L]
         assertNotNull(session)
@@ -47,4 +49,3 @@ class SurveyServicePhoneTest : SurveyServiceTestBase() {
         assertEquals(Answers.INCORRECT_NUMBER.text, phoneResponse.text)
     }
 }
-
