@@ -1,7 +1,7 @@
 package telegram.commands
 
 /**
- * Тесты поведения команды /cancel (шаг назад).
+ * Тесты команды /cancel.
  */
 
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -13,15 +13,16 @@ import telegram.enums.Examples
 import telegram.enums.UserStates
 import telegram.services.SurveyServiceTestBase
 
-class SurveyCancelCommandTest : SurveyServiceTestBase() {
+class CancelCommandTest : SurveyServiceTestBase() {
 
     @Test
     fun `cancel from project step should go back to phone`() {
         service.handle(mockTelegramUpdate(Commands.START.text))
         service.handle(mockTelegramUpdate(Examples.CORRECT_NUMBER.text))
 
-        val cancelResponse = service.handle(mockTelegramUpdate(Commands.CANCEL.text))
-        val txt = cancelResponse.text ?: ""
+        val response = service.handle(mockTelegramUpdate(Commands.CANCEL.text))
+        val txt = response.text ?: ""
+
         assertTrue(txt.contains("телефон"))
 
         val session = sessionsStore[1L]
@@ -36,8 +37,9 @@ class SurveyCancelCommandTest : SurveyServiceTestBase() {
         service.handle(mockTelegramUpdate(Examples.CORRECT_NUMBER.text))
         service.handle(mockTelegramUpdate(Examples.PROJECT.text))
 
-        val cancelResponse = service.handle(mockTelegramUpdate(Commands.CANCEL.text))
-        val txt = cancelResponse.text ?: ""
+        val response = service.handle(mockTelegramUpdate(Commands.CANCEL.text))
+        val txt = response.text ?: ""
+
         assertTrue(txt.contains("название проекта"))
 
         val session = sessionsStore[1L]
@@ -56,8 +58,9 @@ class SurveyCancelCommandTest : SurveyServiceTestBase() {
 
         assertEquals(UserStates.COMPLETED, sessionsStore[1L]?.state)
 
-        val cancelResponse = service.handle(mockTelegramUpdate(Commands.CANCEL.text))
-        val txt = cancelResponse.text ?: ""
+        val response = service.handle(mockTelegramUpdate(Commands.CANCEL.text))
+        val txt = response.text ?: ""
+
         assertTrue(txt.contains("назначение"))
 
         val session = sessionsStore[1L]

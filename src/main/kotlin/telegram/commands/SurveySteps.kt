@@ -3,8 +3,8 @@ package telegram.commands
 /**
  * Описание шагов опроса в одном месте.
  *
- * Это "wizard"-подход (FSM): у каждого шага есть индекс, подсказка и правило очистки поля при шаге назад (/cancel).
- * Тогда /cancel не содержит повторяющиеся if/when на каждый шаг — он просто делает stepIndex - 1.
+ * Это "wizard"-подход: у каждого шага есть индекс, текст шага, подсказка и правило,
+ * как очищать данные при возврате назад по /cancel.
  */
 
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboard
@@ -21,8 +21,8 @@ internal data class SurveyStep(
 )
 
 /**
- * Индекс шага = `UserStates.stepIndex`.
- * ВАЖНО: список должен быть в том же порядке, что и индексы.
+ * Индекс шага соответствует `UserStates.stepIndex`.
+ * Важно: порядок в списке должен совпадать с индексами в enum.
  */
 internal val surveySteps: List<SurveyStep> = listOf(
     SurveyStep(
@@ -52,4 +52,3 @@ internal fun previousStepFor(state: UserStates): SurveyStep? {
     val prevIndex = state.stepIndex - 1
     return surveySteps.getOrNull(prevIndex)
 }
-
