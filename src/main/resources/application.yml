@@ -1,6 +1,9 @@
-﻿telegram:
+telegram:
   token: ${TELEGRAM_TOKEN}
   register-commands: ${TELEGRAM_REGISTER_COMMANDS:true}
+  webhook:
+    secret-token: ${TELEGRAM_WEBHOOK_SECRET:}
+    validate-secret: ${TELEGRAM_VALIDATE_WEBHOOK_SECRET:false}
 
 micronaut:
   server:
