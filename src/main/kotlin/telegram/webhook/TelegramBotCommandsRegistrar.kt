@@ -3,7 +3,7 @@
 /**
  * Регистрация меню команд бота (setMyCommands) при старте приложения.
  *
- * Это именно "меню подсказок" в интерфейсе Telegram (кнопка со слэш-командами).
+ * "Меню подсказок" в интерфейсе Telegram (кнопка со слэш-командами).
  * Telegram ожидает команды без ведущего '/'.
  */
 import io.micronaut.context.annotation.Property
@@ -66,7 +66,6 @@ class TelegramBotCommandsRegistrar(
                 )
             }
         } catch (e: Exception) {
-            // Не ломаем старт приложения, если Telegram API недоступен.
             log.warn("Не удалось зарегистрировать меню команд Telegram (игнорируем)", e)
         }
     }
