@@ -10,7 +10,7 @@ import telegram.enums.InputLimit
 import telegram.enums.UserStates
 import telegram.model.MutableBotReply
 import telegram.persistence.UserSession
-import telegram.text.Messages
+import telegram.text.BotMessages
 import telegram.validation.containsEmoji
 import telegram.validation.isLengthInRange
 import java.time.Instant
@@ -32,7 +32,7 @@ internal fun handleWaitingForProjectName(
         return HandlingResult(handled = true)
     }
 
-    toUserMessage.text = Messages.projectSaved(projectName) + "\n\n" + Answers.PROJECT_SAVED.text
+    toUserMessage.text = BotMessages.projectSaved(projectName) + "\n\n" + Answers.PROJECT_SAVED.text
 
     return HandlingResult(
         handled = true,
@@ -43,4 +43,6 @@ internal fun handleWaitingForProjectName(
         )
     )
 }
+
+
 

@@ -1,9 +1,5 @@
 package telegram.services
 
-/**
- * Сквозные тесты SurveyService.
- */
-
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertTrue

@@ -1,14 +1,13 @@
-﻿package telegram.commands
+﻿package telegram.commands.handling
 
 /**
- * Обработка пользовательского ввода по шагам опроса (состояния).
- *
- * Здесь выполняются проверки и формируются ответы.
+ * Обработка пользовательского ввода по шагам опроса.
  */
 
 import telegram.commands.state.handleWaitingForPhone
 import telegram.commands.state.handleWaitingForProjectName
 import telegram.commands.state.handleWaitingForPurpose
+import telegram.commands.HandlingResult
 import telegram.enums.UserStates
 import telegram.model.MutableBotReply
 import telegram.persistence.UserSession
@@ -27,4 +26,7 @@ fun handleStatesCommands(
         UserStates.COMPLETED -> HandlingResult(handled = false)
     }
 }
+
+
+
 

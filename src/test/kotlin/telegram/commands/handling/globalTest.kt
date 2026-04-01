@@ -1,8 +1,4 @@
-package telegram.commands
-
-/**
- * Тесты глобальных команд и общего command-routing.
- */
+package telegram.commands.handling
 
 import io.mockk.every
 import io.mockk.mockk

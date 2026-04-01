@@ -1,10 +1,7 @@
-package telegram.commands
+﻿package telegram.commands
 
 /**
- * Описание шагов опроса в одном месте.
- *
- * Это "wizard"-подход: у каждого шага есть индекс, текст шага, подсказка и правило,
- * как очищать данные при возврате назад по /cancel.
+ * РћРїРёСЃР°РЅРёРµ С€Р°РіРѕРІ РѕРїСЂРѕСЃР°.
  */
 
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboard
@@ -21,28 +18,27 @@ internal data class SurveyStep(
 )
 
 /**
- * Индекс шага соответствует `UserStates.stepIndex`.
- * Важно: порядок в списке должен совпадать с индексами в enum.
+ * РџРѕСЂСЏРґРѕРє С€Р°РіРѕРІ СЃРѕРѕС‚РІРµС‚СЃС‚РІСѓРµС‚ `UserStates.stepIndex`.
  */
 internal val surveySteps: List<SurveyStep> = listOf(
     SurveyStep(
         state = UserStates.WAITING_FOR_PHONE,
-        stepName = "телефон",
-        prompt = "Отправьте номер еще раз.",
+        stepName = "С‚РµР»РµС„РѕРЅ",
+        prompt = "РћС‚РїСЂР°РІСЊС‚Рµ РЅРѕРјРµСЂ РµС‰Рµ СЂР°Р·.",
         replyMarkup = phoneKeyboard(),
         clearOnReturn = { s -> s.copy(phone = null) },
     ),
     SurveyStep(
         state = UserStates.WAITING_FOR_PROJECT_NAME,
-        stepName = "название проекта",
-        prompt = "Введите название проекта.",
+        stepName = "РЅР°Р·РІР°РЅРёРµ РїСЂРѕРµРєС‚Р°",
+        prompt = "Р’РІРµРґРёС‚Рµ РЅР°Р·РІР°РЅРёРµ РїСЂРѕРµРєС‚Р°.",
         replyMarkup = ReplyKeyboardRemove(true),
         clearOnReturn = { s -> s.copy(projectName = null) },
     ),
     SurveyStep(
         state = UserStates.WAITING_FOR_PURPOSE,
-        stepName = "назначение",
-        prompt = "Введите назначение проекта.",
+        stepName = "РЅР°Р·РЅР°С‡РµРЅРёРµ",
+        prompt = "Р’РІРµРґРёС‚Рµ РЅР°Р·РЅР°С‡РµРЅРёРµ РїСЂРѕРµРєС‚Р°.",
         replyMarkup = ReplyKeyboardRemove(true),
         clearOnReturn = { s -> s.copy(purpose = null) },
     ),
@@ -52,3 +48,5 @@ internal fun previousStepFor(state: UserStates): SurveyStep? {
     val prevIndex = state.stepIndex - 1
     return surveySteps.getOrNull(prevIndex)
 }
+
+

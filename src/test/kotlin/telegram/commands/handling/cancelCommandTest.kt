@@ -1,8 +1,4 @@
-package telegram.commands
-
-/**
- * Тесты команды /cancel.
- */
+﻿package telegram.commands.handling
 
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
@@ -23,7 +19,7 @@ class CancelCommandTest : SurveyServiceTestBase() {
         val response = service.handle(mockTelegramUpdate(Commands.CANCEL.text))
         val txt = response.text ?: ""
 
-        assertTrue(txt.contains("телефон"))
+        assertTrue(txt.contains("С‚РµР»РµС„РѕРЅ"))
 
         val session = sessionsStore[1L]
         assertNotNull(session)
@@ -40,7 +36,7 @@ class CancelCommandTest : SurveyServiceTestBase() {
         val response = service.handle(mockTelegramUpdate(Commands.CANCEL.text))
         val txt = response.text ?: ""
 
-        assertTrue(txt.contains("название проекта"))
+        assertTrue(txt.contains("РЅР°Р·РІР°РЅРёРµ РїСЂРѕРµРєС‚Р°"))
 
         val session = sessionsStore[1L]
         assertNotNull(session)
@@ -61,7 +57,7 @@ class CancelCommandTest : SurveyServiceTestBase() {
         val response = service.handle(mockTelegramUpdate(Commands.CANCEL.text))
         val txt = response.text ?: ""
 
-        assertTrue(txt.contains("назначение"))
+        assertTrue(txt.contains("РЅР°Р·РЅР°С‡РµРЅРёРµ"))
 
         val session = sessionsStore[1L]
         assertNotNull(session)
@@ -69,3 +65,5 @@ class CancelCommandTest : SurveyServiceTestBase() {
         assertEquals(null, session.purpose)
     }
 }
+
+
