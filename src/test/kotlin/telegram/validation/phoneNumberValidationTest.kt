@@ -1,11 +1,11 @@
-package telegram.validation
+﻿package telegram.validation
 
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 
-class IsValidPhoneNumberTest {
+class PhoneNumberValidationTest {
 
     @Test
     fun `normalize phone should convert plus seven format to stored format`() {
@@ -28,3 +28,4 @@ class IsValidPhoneNumberTest {
         assertFalse(isValidPhoneNumber("hello"))
     }
 }
+
