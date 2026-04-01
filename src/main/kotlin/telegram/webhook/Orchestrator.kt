@@ -3,6 +3,7 @@
 import jakarta.inject.Singleton
 import org.slf4j.LoggerFactory
 import org.telegram.telegrambots.meta.api.objects.Update
+import telegram.text.ServiceMessages
 
 /**
  * Координирует полный сценарий обработки входящего Telegram webhook.
@@ -27,12 +28,12 @@ class Orchestrator(
         when (accessPolicy.authorize(secretTokenHeader, pathSecretToken)) {
             AccessDecision.ALLOWED -> return processTelegramUpdateUseCase.execute(update)
             AccessDecision.MISCONFIGURED -> {
-                log.error("Webhook secret token не настроен: задайте TELEGRAM_WEBHOOK_SECRET перед запуском приложения")
+                log.error(ServiceMessages.SECRET_MISCONFIGURED_LOG)
                 return ProcessingResult.forbidden()
             }
             AccessDecision.DENIED -> {
                 log.warn(
-                    "Отклонен запрос к webhook с невалидным secret token. remote-header-present={} path-secret-present={}",
+                    ServiceMessages.INVALID_SECRET_LOG,
                     !secretTokenHeader.isNullOrBlank(),
                     !pathSecretToken.isNullOrBlank()
                 )
@@ -41,5 +42,7 @@ class Orchestrator(
         }
     }
 }
+
+
 
 

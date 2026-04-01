@@ -1,16 +1,13 @@
-﻿package telegram.text
+package telegram.text
 
 import telegram.enums.UserStates
 import telegram.format.escapeHtml
 import telegram.persistence.UserSession
 
 /**
- * Централизованные тексты и "шаблоны" сообщений бота.
- *
- * Здесь живут именно динамические сообщения (с подстановками и форматированием HTML),
- * чтобы они не были размазаны по обработчикам команд/состояний.
+ * Пользовательские сообщения бота.
  */
-object Messages {
+object BotMessages {
 
     fun phoneSaved(phone: String): String {
         val phoneEscaped = escapeHtml(phone)
@@ -91,4 +88,3 @@ object Messages {
     fun forgetOk(): String =
         "🗑️ <b>Ваши данные удалены.</b>\n\nМожете начать опрос заново: /start"
 }
-

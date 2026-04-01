@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory
 import org.telegram.telegrambots.meta.api.objects.Update
 import telegram.services.ProcessedUpdateStore
 import telegram.services.SurveyService
+import telegram.text.ServiceMessages
 
 /**
  * Сценарий безопасной обработки одного Telegram update.
@@ -24,7 +25,7 @@ class ProcessTelegramUpdateUseCase(
 
         return try {
             if (!processedUpdateStore.tryAcquire(updateId)) {
-                log.info("Повторный update_id={} проигнорирован", updateId)
+                log.info(ServiceMessages.DUPLICATE_UPDATE_LOG, updateId)
                 return ProcessingResult.acknowledged()
             }
 
@@ -34,10 +35,12 @@ class ProcessTelegramUpdateUseCase(
             ProcessingResult.reply(chatId, reply.text, reply.replyMarkup)
         } catch (e: Exception) {
             runCatching { processedUpdateStore.release(updateId) }
-            log.error("Ошибка при обработке входящего webhook-обновления от Telegram", e)
-            ProcessingResult.reply(chatId, "⚠️ Произошла ошибка. Попробуйте позже.")
+            log.error(ServiceMessages.PROCESSING_FAILED_LOG, e)
+            ProcessingResult.reply(chatId, ServiceMessages.PROCESSING_FAILED_REPLY)
         }
     }
 }
+
+
 
 

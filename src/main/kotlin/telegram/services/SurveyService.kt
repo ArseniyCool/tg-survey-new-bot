@@ -1,21 +1,19 @@
-package telegram.services
+﻿package telegram.services
 
 /**
- * Основная логика опроса: принимает Telegram Update, обрабатывает команды и шаги опроса.
- *
- * Состояние и введенные пользователем данные хранятся в БД в таблице `user_sessions`.
+ * Основная логика опроса.
  */
 
 import jakarta.inject.Singleton
 import org.slf4j.LoggerFactory
 import org.telegram.telegrambots.meta.api.objects.Update
-import telegram.commands.handleGlobalCommands
-import telegram.commands.handleStatesCommands
+import telegram.commands.handling.handleGlobalCommands
+import telegram.commands.handling.handleStatesCommands
 import telegram.enums.Answers
 import telegram.enums.Commands
 import telegram.model.BotReply
 import telegram.model.MutableBotReply
-import telegram.text.Messages
+import telegram.text.BotMessages
 
 @Singleton
 class SurveyService(
@@ -47,7 +45,7 @@ class SurveyService(
         if (normalizedCommand == Commands.FORGET.text) {
             userSessionStore.delete(chatId)
             log.info("event=user_data_deleted updateId={} chatId={}", updateId, chatId)
-            toUser.text = Messages.forgetOk()
+            toUser.text = BotMessages.forgetOk()
             return toUser.toImmutable()
         }
 
@@ -73,7 +71,7 @@ class SurveyService(
                 chatId,
                 normalizedCommand,
             )
-            toUser.text = Messages.unknownCommand(normalizedCommand)
+            toUser.text = BotMessages.unknownCommand(normalizedCommand)
             return toUser.toImmutable()
         }
 
@@ -119,3 +117,6 @@ class SurveyService(
         )
     }
 }
+
+
+

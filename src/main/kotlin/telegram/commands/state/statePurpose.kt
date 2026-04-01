@@ -10,7 +10,7 @@ import telegram.enums.InputLimit
 import telegram.enums.UserStates
 import telegram.model.MutableBotReply
 import telegram.persistence.UserSession
-import telegram.text.Messages
+import telegram.text.BotMessages
 import telegram.validation.containsEmoji
 import telegram.validation.isLengthInRange
 import java.time.Instant
@@ -38,7 +38,7 @@ internal fun handleWaitingForPurpose(
         updatedAt = Instant.now(),
     )
 
-    toUserMessage.text = Messages.receipt(
+    toUserMessage.text = BotMessages.receipt(
         phone = completedSession.phone.orEmpty(),
         projectName = completedSession.projectName.orEmpty(),
         purpose = completedSession.purpose.orEmpty(),
@@ -46,4 +46,6 @@ internal fun handleWaitingForPurpose(
 
     return HandlingResult(handled = true, updatedSession = completedSession)
 }
+
+
 

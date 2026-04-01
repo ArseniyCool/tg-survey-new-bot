@@ -1,9 +1,7 @@
-﻿package telegram.commands
+﻿package telegram.commands.handling
 
 /**
- * Обработчики "глобальных" команд (/start, /help и т.п.).
- *
- * Эти команды работают независимо от текущего шага опроса.
+ * Обработка глобальных команд.
  */
 
 import telegram.enums.Answers
@@ -11,7 +9,9 @@ import telegram.enums.Commands
 import telegram.enums.UserStates
 import telegram.model.MutableBotReply
 import telegram.persistence.UserSession
-import telegram.text.Messages
+import telegram.text.BotMessages
+import telegram.commands.HandlingResult
+import telegram.commands.phoneKeyboard
 import java.time.Instant
 
 fun handleGlobalCommands(
@@ -58,11 +58,14 @@ fun handleGlobalCommands(
         }
 
         Commands.CHECK.text, Commands.STATUS.text -> {
-            response.text = Messages.checkStatus(session)
+            response.text = BotMessages.checkStatus(session)
             HandlingResult(handled = true)
         }
 
         else -> HandlingResult(handled = false)
     }
 }
+
+
+
 

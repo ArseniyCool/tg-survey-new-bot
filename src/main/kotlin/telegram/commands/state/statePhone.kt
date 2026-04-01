@@ -10,7 +10,7 @@ import telegram.enums.Answers
 import telegram.enums.UserStates
 import telegram.model.MutableBotReply
 import telegram.persistence.UserSession
-import telegram.text.Messages
+import telegram.text.BotMessages
 import telegram.validation.normalizePhoneNumber
 import java.time.Instant
 
@@ -25,10 +25,9 @@ internal fun handleWaitingForPhone(
         return HandlingResult(handled = true)
     }
 
-    // Прячем клавиатуру "отправить контакт" после того, как получили телефон.
     toUserMessage.replyMarkup = ReplyKeyboardRemove(true)
 
-    toUserMessage.text = Messages.phoneSaved(normalizedPhone) + "\n\n" + Answers.NUMBER_SAVED.text
+    toUserMessage.text = BotMessages.phoneSaved(normalizedPhone) + "\n\n" + Answers.NUMBER_SAVED.text
 
     return HandlingResult(
         handled = true,
@@ -39,4 +38,6 @@ internal fun handleWaitingForPhone(
         )
     )
 }
+
+
 

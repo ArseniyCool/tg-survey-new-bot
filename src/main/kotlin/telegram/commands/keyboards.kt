@@ -1,7 +1,7 @@
 ﻿package telegram.commands
 
 /**
- * Клавиатуры (reply markup) для Telegram: кнопки, которые бот может показывать пользователю.
+ * Клавиатуры для сообщений бота.
  */
 
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup
@@ -22,4 +22,6 @@ internal fun phoneKeyboard(): ReplyKeyboardMarkup {
         selective = true
     }
 }
+
+
 

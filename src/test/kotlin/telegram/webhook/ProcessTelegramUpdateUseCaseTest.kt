@@ -13,6 +13,7 @@ import org.telegram.telegrambots.meta.api.objects.Update
 import telegram.model.BotReply
 import telegram.services.ProcessedUpdateStore
 import telegram.services.SurveyService
+import telegram.text.ServiceMessages
 
 class ProcessTelegramUpdateUseCaseTest {
 
@@ -64,7 +65,7 @@ class ProcessTelegramUpdateUseCaseTest {
         val result = useCase.execute(update)
 
         assertEquals(HttpStatus.OK, result.status)
-        assertEquals("⚠️ Произошла ошибка. Попробуйте позже.", result.text)
+        assertEquals(ServiceMessages.PROCESSING_FAILED_REPLY, result.text)
         verify { processedUpdateStore.release(100L) }
     }
 
@@ -79,5 +80,7 @@ class ProcessTelegramUpdateUseCaseTest {
         return update
     }
 }
+
+
 
 
