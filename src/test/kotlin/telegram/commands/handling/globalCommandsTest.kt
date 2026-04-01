@@ -14,7 +14,7 @@ import telegram.enums.Examples
 import telegram.enums.UserStates
 import telegram.services.SurveyServiceTestBase
 
-class GlobalTest : SurveyServiceTestBase() {
+class GlobalCommandsTest : SurveyServiceTestBase() {
 
     @Test
     fun `start command should return hello`() {

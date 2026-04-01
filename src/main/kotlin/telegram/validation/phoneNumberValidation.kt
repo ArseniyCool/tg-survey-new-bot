@@ -21,9 +21,5 @@ fun normalizePhoneNumber(phoneNumber: String): String? {
     return null
 }
 
-fun isValidPhoneNumber(phoneNumber: String): Boolean {
-    return normalizePhoneNumber(phoneNumber) != null
-}
-
 
 

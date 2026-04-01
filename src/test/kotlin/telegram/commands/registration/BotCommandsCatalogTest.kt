@@ -1,4 +1,4 @@
-﻿package telegram.commands.registration
+package telegram.commands.registration
 
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -21,10 +21,8 @@ class BotCommandsCatalogTest {
 
         assertTrue(payload.contains("\"commands\""))
         assertTrue(payload.contains("\"command\": \"start\""))
-        assertTrue(payload.contains("\"description\": \"РќР°С‡Р°С‚СЊ / РїРµСЂРµР·Р°РїСѓСЃС‚РёС‚СЊ\""))
+        assertTrue(payload.contains("\"description\": \"Начать / перезапустить\""))
         assertTrue(payload.contains("\"command\": \"forget\""))
-        assertTrue(payload.contains("\"description\": \"РЈРґР°Р»РёС‚СЊ РјРѕРё РґР°РЅРЅС‹Рµ\""))
+        assertTrue(payload.contains("\"description\": \"Удалить мои данные\""))
     }
 }
-
-

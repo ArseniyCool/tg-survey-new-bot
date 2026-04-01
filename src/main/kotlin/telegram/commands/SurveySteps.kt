@@ -1,7 +1,7 @@
-﻿package telegram.commands
+package telegram.commands
 
 /**
- * РћРїРёСЃР°РЅРёРµ С€Р°РіРѕРІ РѕРїСЂРѕСЃР°.
+ * Описание шагов опроса.
  */
 
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboard
@@ -18,27 +18,27 @@ internal data class SurveyStep(
 )
 
 /**
- * РџРѕСЂСЏРґРѕРє С€Р°РіРѕРІ СЃРѕРѕС‚РІРµС‚СЃС‚РІСѓРµС‚ `UserStates.stepIndex`.
+ * Порядок шагов соответствует `UserStates.stepIndex`.
  */
 internal val surveySteps: List<SurveyStep> = listOf(
     SurveyStep(
         state = UserStates.WAITING_FOR_PHONE,
-        stepName = "С‚РµР»РµС„РѕРЅ",
-        prompt = "РћС‚РїСЂР°РІСЊС‚Рµ РЅРѕРјРµСЂ РµС‰Рµ СЂР°Р·.",
+        stepName = "телефон",
+        prompt = "Отправьте номер еще раз.",
         replyMarkup = phoneKeyboard(),
         clearOnReturn = { s -> s.copy(phone = null) },
     ),
     SurveyStep(
         state = UserStates.WAITING_FOR_PROJECT_NAME,
-        stepName = "РЅР°Р·РІР°РЅРёРµ РїСЂРѕРµРєС‚Р°",
-        prompt = "Р’РІРµРґРёС‚Рµ РЅР°Р·РІР°РЅРёРµ РїСЂРѕРµРєС‚Р°.",
+        stepName = "название проекта",
+        prompt = "Введите название проекта.",
         replyMarkup = ReplyKeyboardRemove(true),
         clearOnReturn = { s -> s.copy(projectName = null) },
     ),
     SurveyStep(
         state = UserStates.WAITING_FOR_PURPOSE,
-        stepName = "РЅР°Р·РЅР°С‡РµРЅРёРµ",
-        prompt = "Р’РІРµРґРёС‚Рµ РЅР°Р·РЅР°С‡РµРЅРёРµ РїСЂРѕРµРєС‚Р°.",
+        stepName = "назначение",
+        prompt = "Введите назначение проекта.",
         replyMarkup = ReplyKeyboardRemove(true),
         clearOnReturn = { s -> s.copy(purpose = null) },
     ),
@@ -48,5 +48,3 @@ internal fun previousStepFor(state: UserStates): SurveyStep? {
     val prevIndex = state.stepIndex - 1
     return surveySteps.getOrNull(prevIndex)
 }
-
-

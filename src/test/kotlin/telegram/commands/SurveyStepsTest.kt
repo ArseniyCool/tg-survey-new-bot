@@ -1,7 +1,7 @@
-﻿package telegram.commands
+package telegram.commands
 
 /**
- * РўРµСЃС‚С‹ РѕРїРёСЃР°РЅРёСЏ С€Р°РіРѕРІ РѕРїСЂРѕСЃР°.
+ * Тесты описания шагов опроса.
  */
 
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -19,7 +19,7 @@ class SurveyStepsTest {
 
         assertNotNull(step)
         assertEquals(UserStates.WAITING_FOR_PURPOSE, step!!.state)
-        assertEquals("РЅР°Р·РЅР°С‡РµРЅРёРµ", step.stepName)
+        assertEquals("назначение", step.stepName)
     }
 
     @Test
@@ -45,5 +45,3 @@ class SurveyStepsTest {
         assertEquals(null, cleared.purpose)
     }
 }
-
-

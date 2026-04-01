@@ -1,8 +1,6 @@
 ﻿package telegram.validation
 
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertFalse
-import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 
 class PhoneNumberValidationTest {
@@ -23,9 +21,8 @@ class PhoneNumberValidationTest {
     }
 
     @Test
-    fun `is valid phone number should detect valid and invalid values`() {
-        assertTrue(isValidPhoneNumber("8 888 888 88 88"))
-        assertFalse(isValidPhoneNumber("hello"))
+    fun `normalize phone should return null for non phone text`() {
+        assertEquals(null, normalizePhoneNumber("hello"))
     }
 }
 

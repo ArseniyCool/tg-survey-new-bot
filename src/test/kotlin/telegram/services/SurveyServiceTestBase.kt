@@ -1,10 +1,7 @@
-﻿package telegram.services
+package telegram.services
 
 /**
- * РћР±С‰Р°СЏ Р±Р°Р·Р° РґР»СЏ С‚РµСЃС‚РѕРІ SurveyService.
- *
- * Р—РґРµСЃСЊ Р»РµР¶РёС‚ РЅР°СЃС‚СЂРѕР№РєР° РјРѕРє-СЂРµРїРѕР·РёС‚РѕСЂРёСЏ Рё С…РµР»РїРµСЂС‹ РґР»СЏ СЃР±РѕСЂРєРё Telegram Update,
- * С‡С‚РѕР±С‹ С‚РµСЃС‚С‹ Р±С‹Р»Рё РєРѕСЂРѕС‡Рµ Рё С‡РёС‚Р°Р»РёСЃСЊ РїСЂРѕС‰Рµ.
+ * Общая база для тестов SurveyService.
  */
 
 import io.mockk.every
@@ -99,5 +96,3 @@ abstract class SurveyServiceTestBase {
         return update
     }
 }
-
-

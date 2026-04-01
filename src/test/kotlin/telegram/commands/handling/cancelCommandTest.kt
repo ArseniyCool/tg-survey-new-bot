@@ -1,4 +1,4 @@
-﻿package telegram.commands.handling
+package telegram.commands.handling
 
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
@@ -19,7 +19,7 @@ class CancelCommandTest : SurveyServiceTestBase() {
         val response = service.handle(mockTelegramUpdate(Commands.CANCEL.text))
         val txt = response.text ?: ""
 
-        assertTrue(txt.contains("С‚РµР»РµС„РѕРЅ"))
+        assertTrue(txt.contains("телефон"))
 
         val session = sessionsStore[1L]
         assertNotNull(session)
@@ -36,7 +36,7 @@ class CancelCommandTest : SurveyServiceTestBase() {
         val response = service.handle(mockTelegramUpdate(Commands.CANCEL.text))
         val txt = response.text ?: ""
 
-        assertTrue(txt.contains("РЅР°Р·РІР°РЅРёРµ РїСЂРѕРµРєС‚Р°"))
+        assertTrue(txt.contains("название проекта"))
 
         val session = sessionsStore[1L]
         assertNotNull(session)
@@ -57,7 +57,7 @@ class CancelCommandTest : SurveyServiceTestBase() {
         val response = service.handle(mockTelegramUpdate(Commands.CANCEL.text))
         val txt = response.text ?: ""
 
-        assertTrue(txt.contains("РЅР°Р·РЅР°С‡РµРЅРёРµ"))
+        assertTrue(txt.contains("назначение"))
 
         val session = sessionsStore[1L]
         assertNotNull(session)
@@ -65,5 +65,3 @@ class CancelCommandTest : SurveyServiceTestBase() {
         assertEquals(null, session.purpose)
     }
 }
-
-

@@ -1,4 +1,4 @@
-﻿package telegram.text
+package telegram.text
 
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -9,22 +9,22 @@ class ServiceMessagesTest {
     @Test
     fun `should keep command registration logs in one place`() {
         assertEquals(
-            "telegram.token РїСѓСЃС‚РѕР№; СЂРµРіРёСЃС‚СЂР°С†РёСЋ РјРµРЅСЋ РєРѕРјР°РЅРґ РїСЂРѕРїСѓСЃРєР°РµРј",
+            "telegram.token пустой; регистрацию меню команд пропускаем",
             ServiceMessages.EMPTY_TOKEN_SKIP_COMMANDS_REGISTRATION_LOG
         )
         assertEquals(
-            "РњРµРЅСЋ РєРѕРјР°РЅРґ Telegram СѓСЃРїРµС€РЅРѕ Р·Р°СЂРµРіРёСЃС‚СЂРёСЂРѕРІР°РЅРѕ",
+            "Меню команд Telegram успешно зарегистрировано",
             ServiceMessages.COMMANDS_REGISTRATION_SUCCESS_LOG
         )
         assertEquals(
-            "РќРµ СѓРґР°Р»РѕСЃСЊ Р·Р°СЂРµРіРёСЃС‚СЂРёСЂРѕРІР°С‚СЊ РјРµРЅСЋ РєРѕРјР°РЅРґ Telegram (РёРіРЅРѕСЂРёСЂСѓРµРј)",
+            "Не удалось зарегистрировать меню команд Telegram (игнорируем)",
             ServiceMessages.COMMANDS_REGISTRATION_EXCEPTION_LOG
         )
     }
 
     @Test
     fun `should keep configured processing failed reply in one place`() {
-        assertEquals("вљ пёЏ РџСЂРѕРёР·РѕС€Р»Р° РѕС€РёР±РєР°. РџРѕРїСЂРѕР±СѓР№С‚Рµ РїРѕР·Р¶Рµ.", ServiceMessages.PROCESSING_FAILED_REPLY)
+        assertEquals("⚠️ Произошла ошибка. Попробуйте позже.", ServiceMessages.PROCESSING_FAILED_REPLY)
     }
 
     @Test
@@ -33,4 +33,3 @@ class ServiceMessagesTest {
         assertTrue(ServiceMessages.INVALID_SECRET_LOG.contains("path-secret-present={}"))
     }
 }
-

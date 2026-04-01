@@ -1,10 +1,10 @@
-﻿package telegram.commands.registration
+package telegram.commands.registration
 
 import jakarta.inject.Singleton
 import telegram.enums.Commands
 
 /**
- * РљР°С‚Р°Р»РѕРі РєРѕРјР°РЅРґ РґР»СЏ РјРµРЅСЋ Р±РѕС‚Р°.
+ * Каталог команд для меню бота.
  */
 @Singleton
 class BotCommandsCatalog {
@@ -15,13 +15,13 @@ class BotCommandsCatalog {
     )
 
     fun definitions(): List<CommandDefinition> = listOf(
-        CommandDefinition(Commands.START.text.removePrefix("/"), "РќР°С‡Р°С‚СЊ / РїРµСЂРµР·Р°РїСѓСЃС‚РёС‚СЊ"),
-        CommandDefinition(Commands.HELP.text.removePrefix("/"), "РџРѕРєР°Р·Р°С‚СЊ СЃРїСЂР°РІРєСѓ"),
-        CommandDefinition(Commands.PRIVACY.text.removePrefix("/"), "РљР°Рє С…СЂР°РЅРёРј РґР°РЅРЅС‹Рµ"),
-        CommandDefinition(Commands.CANCEL.text.removePrefix("/"), "РЁР°Рі РЅР°Р·Р°Рґ"),
-        CommandDefinition(Commands.CHECK.text.removePrefix("/"), "РЎРѕСЃС‚РѕСЏРЅРёРµ Р°РЅРєРµС‚С‹"),
-        CommandDefinition(Commands.FORGET.text.removePrefix("/"), "РЈРґР°Р»РёС‚СЊ РјРѕРё РґР°РЅРЅС‹Рµ"),
-        CommandDefinition(Commands.PING.text.removePrefix("/"), "РџСЂРѕРІРµСЂРєР° СЃРІСЏР·Рё"),
+        CommandDefinition(Commands.START.text.removePrefix("/"), "Начать / перезапустить"),
+        CommandDefinition(Commands.HELP.text.removePrefix("/"), "Показать справку"),
+        CommandDefinition(Commands.PRIVACY.text.removePrefix("/"), "Как храним данные"),
+        CommandDefinition(Commands.CANCEL.text.removePrefix("/"), "Шаг назад"),
+        CommandDefinition(Commands.CHECK.text.removePrefix("/"), "Состояние анкеты"),
+        CommandDefinition(Commands.FORGET.text.removePrefix("/"), "Удалить мои данные"),
+        CommandDefinition(Commands.PING.text.removePrefix("/"), "Проверка связи"),
     )
 
     fun setMyCommandsPayload(): String {
@@ -32,5 +32,3 @@ class BotCommandsCatalog {
         return "{\n  \"commands\": [\n$commandsJson\n  ]\n}"
     }
 }
-
-
