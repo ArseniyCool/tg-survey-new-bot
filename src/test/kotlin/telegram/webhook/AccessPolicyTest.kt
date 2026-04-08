@@ -12,7 +12,7 @@ class AccessPolicyTest {
     fun `should allow request when validation is disabled`() {
         val disabledPolicy = AccessPolicy(Security("", false))
 
-        val decision = disabledPolicy.authorize(null, null)
+        val decision = disabledPolicy.authorize(null)
 
         assertEquals(AccessDecision.ALLOWED, decision)
     }
@@ -21,28 +21,21 @@ class AccessPolicyTest {
     fun `should reject request when secret token is missing in configuration`() {
         val misconfiguredPolicy = AccessPolicy(Security("", true))
 
-        val decision = misconfiguredPolicy.authorize(null, null)
+        val decision = misconfiguredPolicy.authorize(null)
 
         assertEquals(AccessDecision.MISCONFIGURED, decision)
     }
 
     @Test
     fun `should reject request with invalid token`() {
-        val decision = policy.authorize("wrong-token", null)
+        val decision = policy.authorize("wrong-token")
 
         assertEquals(AccessDecision.DENIED, decision)
     }
 
     @Test
     fun `should allow request with valid header token`() {
-        val decision = policy.authorize("very-secret-token", null)
-
-        assertEquals(AccessDecision.ALLOWED, decision)
-    }
-
-    @Test
-    fun `should allow request with valid path token`() {
-        val decision = policy.authorize(null, "very-secret-token")
+        val decision = policy.authorize("very-secret-token")
 
         assertEquals(AccessDecision.ALLOWED, decision)
     }

@@ -22,20 +22,6 @@ class SecurityTest {
     }
 
     @Test
-    fun `configured security should accept matching path token`() {
-        val security = Security("very-secret-token", true)
-
-        assertEquals(ValidationResult.VALID, security.validate(null, "very-secret-token"))
-    }
-
-    @Test
-    fun `configured security should reject wrong header and wrong path token`() {
-        val security = Security("very-secret-token", true)
-
-        assertEquals(ValidationResult.INVALID, security.validate("wrong-token", "also-wrong"))
-    }
-
-    @Test
     fun `blank configured token should report misconfigured state`() {
         val security = Security("", true)
 

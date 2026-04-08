@@ -20,7 +20,7 @@ object ServiceMessages {
         "Webhook secret token не настроен: задайте TELEGRAM_WEBHOOK_SECRET перед запуском приложения"
 
     const val INVALID_SECRET_LOG: String =
-        "Отклонен запрос к webhook с невалидным secret token. remote-header-present={} path-secret-present={}"
+        "Отклонен запрос к webhook с невалидным secret token. remote-header-present={}"
 
     const val DUPLICATE_UPDATE_LOG: String =
         "Повторный update_id={} проигнорирован"

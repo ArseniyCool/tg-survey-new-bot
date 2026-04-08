@@ -18,14 +18,13 @@ class Orchestrator(
     fun process(
         update: Update,
         secretTokenHeader: String?,
-        pathSecretToken: String?,
     ): ProcessingResult {
         val chatId = update.message?.chatId
         val updateId = update.updateId.toLong()
 
         log.info("event=webhook_received updateId={} chatId={}", updateId, chatId)
 
-        when (accessPolicy.authorize(secretTokenHeader, pathSecretToken)) {
+        when (accessPolicy.authorize(secretTokenHeader)) {
             AccessDecision.ALLOWED -> return processTelegramUpdateUseCase.execute(update)
             AccessDecision.MISCONFIGURED -> {
                 log.error(ServiceMessages.SECRET_MISCONFIGURED_LOG)
@@ -34,8 +33,7 @@ class Orchestrator(
             AccessDecision.DENIED -> {
                 log.warn(
                     ServiceMessages.INVALID_SECRET_LOG,
-                    !secretTokenHeader.isNullOrBlank(),
-                    !pathSecretToken.isNullOrBlank()
+                    !secretTokenHeader.isNullOrBlank()
                 )
                 return ProcessingResult.forbidden()
             }

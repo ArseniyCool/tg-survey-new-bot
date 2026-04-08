@@ -21,9 +21,9 @@ class OrchestratorTest {
     @Test
     fun `should return forbidden result when webhook security is misconfigured`() {
         val update = mockUpdate(100L, 42L)
-        every { accessPolicy.authorize(null, null) } returns AccessDecision.MISCONFIGURED
+        every { accessPolicy.authorize(null) } returns AccessDecision.MISCONFIGURED
 
-        val result = orchestrator.process(update, null, null)
+        val result = orchestrator.process(update, null)
 
         assertEquals(HttpStatus.FORBIDDEN, result.status)
         verify(exactly = 0) { processTelegramUpdateUseCase.execute(any()) }
@@ -32,9 +32,9 @@ class OrchestratorTest {
     @Test
     fun `should return forbidden result when webhook token is invalid`() {
         val update = mockUpdate(100L, 42L)
-        every { accessPolicy.authorize("bad", null) } returns AccessDecision.DENIED
+        every { accessPolicy.authorize("bad") } returns AccessDecision.DENIED
 
-        val result = orchestrator.process(update, "bad", null)
+        val result = orchestrator.process(update, "bad")
 
         assertEquals(HttpStatus.FORBIDDEN, result.status)
         verify(exactly = 0) { processTelegramUpdateUseCase.execute(any()) }
@@ -45,10 +45,10 @@ class OrchestratorTest {
         val update = mockUpdate(100L, 42L)
         val expectedResult = ProcessingResult.reply(42L, "Hello")
 
-        every { accessPolicy.authorize(null, null) } returns AccessDecision.ALLOWED
+        every { accessPolicy.authorize(null) } returns AccessDecision.ALLOWED
         every { processTelegramUpdateUseCase.execute(update) } returns expectedResult
 
-        val result = orchestrator.process(update, null, null)
+        val result = orchestrator.process(update, null)
 
         assertEquals(expectedResult, result)
         verify { processTelegramUpdateUseCase.execute(update) }

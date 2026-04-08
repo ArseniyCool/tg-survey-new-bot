@@ -12,9 +12,8 @@ class AccessPolicy(
 ) {
     fun authorize(
         secretTokenHeader: String?,
-        pathSecretToken: String?,
     ): AccessDecision {
-        return when (security.validate(secretTokenHeader, pathSecretToken)) {
+        return when (security.validate(secretTokenHeader)) {
             ValidationResult.DISABLED,
             ValidationResult.VALID,
             -> AccessDecision.ALLOWED

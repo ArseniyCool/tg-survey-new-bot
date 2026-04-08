@@ -28,8 +28,7 @@ class ServiceMessagesTest {
     }
 
     @Test
-    fun `should keep invalid secret log template with both placeholders`() {
+    fun `should keep invalid secret log template with header placeholder`() {
         assertTrue(ServiceMessages.INVALID_SECRET_LOG.contains("remote-header-present={}"))
-        assertTrue(ServiceMessages.INVALID_SECRET_LOG.contains("path-secret-present={}"))
     }
 }

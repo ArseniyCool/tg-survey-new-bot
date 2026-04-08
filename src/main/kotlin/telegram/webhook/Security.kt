@@ -21,7 +21,7 @@ class Security(
         INVALID,
     }
 
-    fun validate(receivedSecretToken: String?, pathSecretToken: String? = null): ValidationResult {
+    fun validate(receivedSecretToken: String?): ValidationResult {
         if (!validateSecretToken) {
             return ValidationResult.DISABLED
         }
@@ -30,7 +30,7 @@ class Security(
             return ValidationResult.MISCONFIGURED
         }
 
-        if (receivedSecretToken == expectedSecretToken || pathSecretToken == expectedSecretToken) {
+        if (receivedSecretToken == expectedSecretToken) {
             return ValidationResult.VALID
         }
 
