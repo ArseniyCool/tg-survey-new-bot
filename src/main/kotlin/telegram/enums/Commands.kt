@@ -14,5 +14,8 @@ enum class Commands(val text: String) {
 
     // Показать текущее состояние анкеты в любой момент.
     CHECK("/check"),
-    STATUS("/status"),
+    STATUS("/status");
+
+    val telegramName: String
+        get() = text.removePrefix("/")
 }

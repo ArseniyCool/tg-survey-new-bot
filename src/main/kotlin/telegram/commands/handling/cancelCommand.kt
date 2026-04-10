@@ -10,7 +10,7 @@ import telegram.text.BotMessages
 import java.time.Instant
 
 /**
- * РћР±СЂР°Р±РѕС‚РєР° РєРѕРјР°РЅРґС‹ /cancel.
+ * Обработка команды /cancel.
  */
 internal fun handleCancelCommand(session: UserSession, response: MutableBotReply): UserSession? {
     val state = session.state

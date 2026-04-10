@@ -8,27 +8,23 @@ import telegram.enums.Commands
  */
 @Singleton
 class BotCommandsCatalog {
-
-    data class CommandDefinition(
-        val command: String,
-        val description: String,
+    private val commandDescriptions = listOf(
+        Commands.START.telegramName to "Начать / перезапустить",
+        Commands.HELP.telegramName to "Показать справку",
+        Commands.PRIVACY.telegramName to "Как храним данные",
+        Commands.CANCEL.telegramName to "Шаг назад",
+        Commands.CHECK.telegramName to "Состояние анкеты",
+        Commands.FORGET.telegramName to "Удалить мои данные",
+        Commands.PING.telegramName to "Проверка связи",
     )
 
-    fun definitions(): List<CommandDefinition> = listOf(
-        CommandDefinition(Commands.START.text.removePrefix("/"), "Начать / перезапустить"),
-        CommandDefinition(Commands.HELP.text.removePrefix("/"), "Показать справку"),
-        CommandDefinition(Commands.PRIVACY.text.removePrefix("/"), "Как храним данные"),
-        CommandDefinition(Commands.CANCEL.text.removePrefix("/"), "Шаг назад"),
-        CommandDefinition(Commands.CHECK.text.removePrefix("/"), "Состояние анкеты"),
-        CommandDefinition(Commands.FORGET.text.removePrefix("/"), "Удалить мои данные"),
-        CommandDefinition(Commands.PING.text.removePrefix("/"), "Проверка связи"),
-    )
+    fun commands(): List<String> = commandDescriptions.map { it.first }
 
-    fun setMyCommandsPayload(): String {
-        val commandsJson = definitions().joinToString(",\n") { definition ->
-            """    {"command": "${definition.command}", "description": "${definition.description}"}"""
+    fun setCommandsPayload(): String {
+        val commandsJson = commandDescriptions.joinToString(",") { (command, description) ->
+            """{"command":"$command","description":"$description"}"""
         }
 
-        return "{\n  \"commands\": [\n$commandsJson\n  ]\n}"
+        return """{"commands":[$commandsJson]}"""
     }
 }

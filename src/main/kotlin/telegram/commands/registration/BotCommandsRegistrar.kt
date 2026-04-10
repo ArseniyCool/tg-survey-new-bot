@@ -13,7 +13,7 @@ import java.net.http.HttpRequest
 import java.net.http.HttpResponse
 
 /**
- * Р РµРіРёСЃС‚СЂР°С†РёСЏ РјРµРЅСЋ РєРѕРјР°РЅРґ Р±РѕС‚Р° РїСЂРё СЃС‚Р°СЂС‚Рµ РїСЂРёР»РѕР¶РµРЅРёСЏ.
+ * Регистрация меню команд бота при старте приложения.
  */
 @Singleton
 @Requires(property = "telegram.register-commands", value = "true")
@@ -37,7 +37,7 @@ class BotCommandsRegistrar(
             val request = HttpRequest.newBuilder()
                 .uri(URI.create(url))
                 .header("Content-Type", "application/json")
-                .POST(HttpRequest.BodyPublishers.ofString(botCommandsCatalog.setMyCommandsPayload()))
+                .POST(HttpRequest.BodyPublishers.ofString(botCommandsCatalog.setCommandsPayload()))
                 .build()
 
             val response = client.send(request, HttpResponse.BodyHandlers.ofString())

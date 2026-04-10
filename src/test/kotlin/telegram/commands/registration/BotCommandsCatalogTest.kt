@@ -10,19 +10,19 @@ class BotCommandsCatalogTest {
 
     @Test
     fun `should expose telegram command names without slash`() {
-        val commands = catalog.definitions().map { it.command }
+        val commands = catalog.commands()
 
         assertEquals(listOf("start", "help", "privacy", "cancel", "check", "forget", "ping"), commands)
     }
 
     @Test
     fun `should build setMyCommands payload with registered descriptions`() {
-        val payload = catalog.setMyCommandsPayload()
+        val payload = catalog.setCommandsPayload()
 
-        assertTrue(payload.contains("\"commands\""))
-        assertTrue(payload.contains("\"command\": \"start\""))
-        assertTrue(payload.contains("\"description\": \"Начать / перезапустить\""))
-        assertTrue(payload.contains("\"command\": \"forget\""))
-        assertTrue(payload.contains("\"description\": \"Удалить мои данные\""))
+        assertEquals(
+            """{"commands":[{"command":"start","description":"Начать / перезапустить"},{"command":"help","description":"Показать справку"},{"command":"privacy","description":"Как храним данные"},{"command":"cancel","description":"Шаг назад"},{"command":"check","description":"Состояние анкеты"},{"command":"forget","description":"Удалить мои данные"},{"command":"ping","description":"Проверка связи"}]}""",
+            payload
+        )
+        assertTrue(payload.contains(""""command":"forget""""))
     }
 }

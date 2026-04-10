@@ -31,7 +31,7 @@ private fun isEmojiCodePoint(cp: Int): Boolean {
     if (cp in 0x2600..0x26FF) return true
     if (cp in 0x2700..0x27BF) return true
 
-    // Технические символы (включает эмодзи вроде ⌚)
+    // Технические символы
     if (cp in 0x2300..0x23FF) return true
 
     return false
